@@ -1,0 +1,33 @@
+[package]
+name = "asposepdf"
+version = "1.25.7"
+edition = "2021"
+license = "MIT"
+license-file = "LICENSE_COMMERCIAL.txt"
+description = "Aspose.PDF for Rust via C++ is a powerful toolkit that allows developers to manipulate PDF files directly and helps do various tasks for PDF. Contains unique features for converting PDF to other formats."
+readme = "README.md"
+repository = "https://github.com/aspose-pdf/aspose-pdf-rust-cpp"
+homepage = "https://products.aspose.com/pdf/rust-cpp/"
+documentation = "https://docs.aspose.com/pdf/rust-cpp/"
+keywords = [
+  "pdf",
+  "pdf-processing",
+  "pdf-manipulation",
+  "pdf-conversion",
+  "aspose"
+]
+categories = [
+    "api-bindings",
+    "external-ffi-bindings",
+    "text-processing",
+    "graphics",
+    "document-processing"
+]
+exclude = ["/lib/*", "/target/*"]
+
+[dependencies]
+
+[build-dependencies]
+bzip2 = "0.4"
+sha2 = "0.10"
+hex = "0.4"
