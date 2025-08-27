@@ -18,19 +18,26 @@ Contains unique features for converting PDF to other formats.
 - **Document-level operations**
   - `optimize`, `optimize_resource`, `grayscale`, `rotate`, `set_background`, `repair`
     Optimize PDF layout and resources, convert to grayscale, rotate pages, set background, and repair corrupted documents.
+  - `replace_text`, `add_page_num`, `add_text_header`, `add_text_footer`
+    Replace text, add page numbers, and insert custom text in the header or footer of the document.
 
 - **Page-level operations**
   - `rotate`, `set_size`, `grayscale`, `add_text`
     Rotate individual pages, set page size, convert pages to grayscale, and add text.
+  - `page_replace_text`, `page_add_page_num`, `page_add_text_header`, `page_add_text_footer`
+    Replace text on a specific page, add page number to a page, and insert custom text in the header or footer of a page.
 
 - **Content extraction**
   - `extract_text`
     Retrieve plain text content from PDF pages.
+  - `export_fdf`, `export_xfdf`, `export_xml`
+    Export data from the previously opened PDF document with AcroForm to FDF, XFDF, or XML formats.
 
 ### PDF converting and saving
 
 - **Microsoft Office:**
   - `DOC`, `DOCX`, `XLSX`, `PPTX`
+  - `DOCX` with Enhanced Recognition Mode (fully editable tables and paragraphs)
 - **Images:**
   - `JPEG`, `PNG`, `BMP`, `TIFF`
 - **PDFs:**

@@ -98,6 +98,19 @@ mod test {
                 Box::new(|doc| doc.set_background(255, 255, 200)),
             ),
             (
+                "replace_text",
+                Box::new(|doc| doc.replace_text("PDF", "TXT")),
+            ),
+            ("add_page_num", Box::new(|doc| doc.add_page_num())),
+            (
+                "add_text_header",
+                Box::new(|doc| doc.add_text_header("HEADER")),
+            ),
+            (
+                "add_text_footer",
+                Box::new(|doc| doc.add_text_footer("FOOTER")),
+            ),
+            (
                 "page_rotate",
                 Box::new(|doc| doc.page_rotate(1, crate::enums::Rotation::On180)),
             ),
@@ -109,6 +122,22 @@ mod test {
             (
                 "page_add_text",
                 Box::new(|doc| doc.page_add_text(1, "Test Text")),
+            ),
+            (
+                "page_replace_text",
+                Box::new(|doc| doc.page_replace_text(1, "PDF", "TXT")),
+            ),
+            (
+                "page_add_page_num",
+                Box::new(|doc| doc.page_add_page_num(1)),
+            ),
+            (
+                "page_add_text_header",
+                Box::new(|doc| doc.page_add_text_header(1, "HEADER")),
+            ),
+            (
+                "page_add_text_footer",
+                Box::new(|doc| doc.page_add_text_footer(1, "FOOTER")),
             ),
         ];
 
@@ -177,6 +206,10 @@ mod test {
             Box<dyn Fn(&Document, &str) -> Result<(), crate::PdfError>>,
         )> = vec![
             ("save_docx", Box::new(|doc, path| doc.save_docx(path))),
+            (
+                "save_docx_enhanced",
+                Box::new(|doc, path| doc.save_docx_enhanced(path)),
+            ),
             ("save_doc", Box::new(|doc, path| doc.save_doc(path))),
             ("save_xlsx", Box::new(|doc, path| doc.save_xlsx(path))),
             ("save_txt", Box::new(|doc, path| doc.save_txt(path))),
@@ -191,6 +224,9 @@ mod test {
             ("save_booklet", Box::new(|doc, path| doc.save_booklet(path))),
             ("save_n_up", Box::new(|doc, path| doc.save_n_up(path, 2, 2))),
             ("save_tiff", Box::new(|doc, path| doc.save_tiff(150, path))),
+            ("export_fdf", Box::new(|doc, path| doc.export_fdf(path))),
+            ("export_xfdf", Box::new(|doc, path| doc.export_xfdf(path))),
+            ("export_xml", Box::new(|doc, path| doc.export_xml(path))),
             (
                 "page_to_jpg",
                 Box::new(|doc, path| doc.page_to_jpg(1, 150, path)),

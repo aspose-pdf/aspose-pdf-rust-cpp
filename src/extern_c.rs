@@ -34,6 +34,23 @@ extern "C" {
         rotation: c_int,
         error: *mut *const c_char,
     );
+    pub fn PDFDocument_ReplaceText(
+        pdfdocumentclass: *const c_void,
+        findText: *const c_char,
+        replaceText: *const c_char,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_AddPageNum(pdfdocumentclass: *const c_void, error: *mut *const c_char);
+    pub fn PDFDocument_AddTextHeader(
+        pdfdocumentclass: *const c_void,
+        header: *const c_char,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_AddTextFooter(
+        pdfdocumentclass: *const c_void,
+        footer: *const c_char,
+        error: *mut *const c_char,
+    );
     pub fn PDFDocument_Page_get_Count(
         pdfdocumentclass: *const c_void,
         error: *mut *const c_char,
@@ -148,6 +165,26 @@ extern "C" {
         filename: *const c_char,
         error: *mut *const c_char,
     );
+    pub fn PDFDocument_Save_DocXEnhanced(
+        pdfdocumentclass: *const c_void,
+        filename: *const c_char,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_Export_Fdf(
+        pdfdocumentclass: *const c_void,
+        filename: *const c_char,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_Export_Xfdf(
+        pdfdocumentclass: *const c_void,
+        filename: *const c_char,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_Export_Xml(
+        pdfdocumentclass: *const c_void,
+        filename: *const c_char,
+        error: *mut *const c_char,
+    );
     pub fn PDFDocument_Page_Add(pdfdocumentclass: *const c_void, error: *mut *const c_char);
     pub fn PDFDocument_Page_Insert(
         pdfdocumentclass: *const c_void,
@@ -180,6 +217,30 @@ extern "C" {
         pdfdocumentclass: *const c_void,
         num: c_int,
         page_size: c_int,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_Page_ReplaceText(
+        pdfdocumentclass: *const c_void,
+        num: c_int,
+        findText: *const c_char,
+        replaceText: *const c_char,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_Page_AddPageNum(
+        pdfdocumentclass: *const c_void,
+        num: c_int,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_Page_AddTextHeader(
+        pdfdocumentclass: *const c_void,
+        num: c_int,
+        header: *const c_char,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_Page_AddTextFooter(
+        pdfdocumentclass: *const c_void,
+        num: c_int,
+        footer: *const c_char,
         error: *mut *const c_char,
     );
 }

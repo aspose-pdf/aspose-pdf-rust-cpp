@@ -1,4 +1,4 @@
-/// Enumeration of possible rotation values.
+/// An enumeration of possible rotation values.
 #[derive(Debug, Clone)]
 #[repr(C)]
 pub enum Rotation {
@@ -14,7 +14,7 @@ pub enum Rotation {
     On360 = 4,
 }
 
-/// Enumeration of possible page size values.
+/// An enumeration of possible page size values.
 #[derive(Debug, Clone)]
 #[repr(C)]
 pub enum PageSize {

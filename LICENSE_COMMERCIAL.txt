@@ -1,4 +1,4 @@
-The shared library (DLL, SO, DYLIB) and its associated files are proprietary
+The shared library (DLL/LIB, SO, DYLIB) and its associated files are proprietary
 and are not covered under the MIT License. Detailed terms and conditions are
 specified in the Aspose EULA.
 

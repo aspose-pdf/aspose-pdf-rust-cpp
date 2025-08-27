@@ -122,7 +122,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rustc-link-lib=dylib={}", lib_base_name);
     println!("cargo:rerun-if-changed={}", lib_dir.display());
 
-    // Platform-specific rpath handling
+    // Platform-specific rpath handling (macos/linux)
     #[cfg(target_os = "macos")]
     println!("cargo:rustc-link-arg=-Wl,-rpath,@loader_path");
     #[cfg(target_os = "linux")]

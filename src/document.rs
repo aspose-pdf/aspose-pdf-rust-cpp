@@ -220,6 +220,7 @@ impl Document {
     generate_fn!(_save_as, PDFDocument_Save_As, filename: &str);
     generate_fn!(_set_license, PDFDocument_set_License, filename: &str);
 
+    generate_fn!(_save_docx_enhanced, PDFDocument_Save_DocXEnhanced, filename: &str);
     generate_fn!(_save_docx, PDFDocument_Save_DocX, filename: &str);
     generate_fn!(_save_doc, PDFDocument_Save_Doc, filename: &str);
     generate_fn!(_save_xlsx, PDFDocument_Save_XlsX, filename: &str);
@@ -232,11 +233,19 @@ impl Document {
     generate_fn!(_save_booklet, PDFDocument_Save_Booklet, filename: &str);
     generate_fn!(_save_n_up, PDFDocument_Save_NUp, filename: &str, columns: i32, rows: i32);
     generate_fn!(_save_tiff, PDFDocument_Save_Tiff, resolution_dpi: i32, filename: &str);
+    generate_fn!(_export_fdf, PDFDocument_Export_Fdf, filename: &str);
+    generate_fn!(_export_xfdf, PDFDocument_Export_Xfdf, filename: &str);
+    generate_fn!(_export_xml, PDFDocument_Export_Xml, filename: &str);
 
     generate_fn!(_optimize, PDFDocument_Optimize);
     generate_fn!(_optimize_resource, PDFDocument_OptimizeResource);
     generate_fn!(_repair, PDFDocument_Repair);
     generate_fn!(_grayscale, PDFDocument_Grayscale);
+
+    generate_fn!(_replace_text, PDFDocument_ReplaceText, find_text: &str, replace_text: &str);
+    generate_fn!(_add_page_num, PDFDocument_AddPageNum);
+    generate_fn!(_add_text_header, PDFDocument_AddTextHeader, header: &str);
+    generate_fn!(_add_text_footer, PDFDocument_AddTextFooter, footer: &str);
 
     generate_fn!(_page_to_jpg, PDFDocument_Page_to_Jpg, num: i32, resolution_dpi: i32, filename: &str);
     generate_fn!(_page_to_png, PDFDocument_Page_to_Png, num: i32, resolution_dpi: i32, filename: &str);
@@ -251,6 +260,11 @@ impl Document {
     generate_fn!(_page_delete, PDFDocument_Page_Delete, num: i32);
     generate_fn!(_page_grayscale, PDFDocument_Page_Grayscale, num: i32);
     generate_fn!(_page_add_text, PDFDocument_Page_AddText, num: i32, add_text: &str);
+
+    generate_fn!(_page_replace_text, PDFDocument_Page_ReplaceText, num: i32, find_text: &str, replace_text: &str);
+    generate_fn!(_page_add_page_num, PDFDocument_Page_AddPageNum, num: i32);
+    generate_fn!(_page_add_text_header, PDFDocument_Page_AddTextHeader, num: i32, header: &str);
+    generate_fn!(_page_add_text_footer, PDFDocument_Page_AddTextFooter, num: i32, footer: &str);
 
     /// Save the previously opened PDF-document.
     ///
@@ -291,6 +305,17 @@ impl Document {
     /// Returns `PdfError` if the operation fails.
     pub fn save_docx(&self, filename: &str) -> Result<(), PdfError> {
         self._save_docx(filename)
+    }
+
+    /// Convert and save the previously opened PDF-document as DocX-document with Enhanced Recognition Mode (fully editable tables and paragraphs).
+    ///
+    /// # Arguments
+    /// * `filename` - The path to the output DOCX-file with Enhanced Recognition Mode.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn save_docx_enhanced(&self, filename: &str) -> Result<(), PdfError> {
+        self._save_docx_enhanced(filename)
     }
 
     /// Convert and save the previously opened PDF-document as Doc-document.
@@ -417,6 +442,39 @@ impl Document {
         self._save_tiff(resolution_dpi, filename)
     }
 
+    /// Export from the previously opened PDF-document with AcroForm to FDF-document.
+    ///
+    /// # Arguments
+    /// * `filename` - The path to the output FDF-file.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn export_fdf(&self, filename: &str) -> Result<(), PdfError> {
+        self._export_fdf(filename)
+    }
+
+    /// Export from the previously opened PDF-document with AcroForm to XFDF-document.
+    ///
+    /// # Arguments
+    /// * `filename` - The path to the output XFDF-file.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn export_xfdf(&self, filename: &str) -> Result<(), PdfError> {
+        self._export_xfdf(filename)
+    }
+
+    /// Export from the previously opened PDF-document with AcroForm to XML-document.
+    ///
+    /// # Arguments
+    /// * `filename` - The path to the output XML-file.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn export_xml(&self, filename: &str) -> Result<(), PdfError> {
+        self._export_xml(filename)
+    }
+
     /// Optimize PDF-document content.
     ///
     /// # Errors
@@ -447,6 +505,48 @@ impl Document {
     /// Returns `PdfError` if the operation fails.
     pub fn grayscale(&self) -> Result<(), PdfError> {
         self._grayscale()
+    }
+
+    /// Replace text in PDF-document.
+    ///
+    /// # Arguments
+    /// * `find_text` - The text fragment to search.
+    /// * `replace_text` - The text fragment to replace.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn replace_text(&self, find_text: &str, replace_text: &str) -> Result<(), PdfError> {
+        self._replace_text(find_text, replace_text)
+    }
+
+    /// Add page number to a PDF-document.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn add_page_num(&self) -> Result<(), PdfError> {
+        self._add_page_num()
+    }
+
+    /// Add text in Header of a PDF-document.
+    ///
+    /// # Arguments
+    /// * `header` - The pages header.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn add_text_header(&self, header: &str) -> Result<(), PdfError> {
+        self._add_text_header(header)
+    }
+
+    /// Add text in Footer of a PDF-document.
+    ///
+    /// # Arguments
+    /// * `footer` - The pages footer.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn add_text_footer(&self, footer: &str) -> Result<(), PdfError> {
+        self._add_text_footer(footer)
     }
 
     /// Convert and save the specified page as Jpg-image.
@@ -614,6 +714,59 @@ impl Document {
     /// Returns `PdfError` if the operation fails.
     pub fn page_add_text(&self, num: i32, add_text: &str) -> Result<(), PdfError> {
         self._page_add_text(num, add_text)
+    }
+
+    /// Replace text on page.
+    ///
+    /// # Arguments
+    /// * `num` - The page number (1-based).
+    /// * `find_text` - The text fragment to search.
+    /// * `replace_text` - The text fragment to replace.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn page_replace_text(
+        &self,
+        num: i32,
+        find_text: &str,
+        replace_text: &str,
+    ) -> Result<(), PdfError> {
+        self._page_replace_text(num, find_text, replace_text)
+    }
+
+    /// Add page number on page.
+    ///
+    /// # Arguments
+    /// * `num` - The page number (1-based).
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn page_add_page_num(&self, num: i32) -> Result<(), PdfError> {
+        self._page_add_page_num(num)
+    }
+
+    /// Add text in page header.
+    ///
+    /// # Arguments
+    /// * `num` - The page number (1-based).
+    /// * `header` - The pages header.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn page_add_text_header(&self, num: i32, header: &str) -> Result<(), PdfError> {
+        self._page_add_text_header(num, header)
+    }
+
+    /// Add text in page footer.
+    ///
+    /// # Arguments
+    /// * `num` - The page number (1-based).
+    /// * `footer` - The pages footer.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn page_add_text_footer(&self, num: i32, footer: &str) -> Result<(), PdfError> {
+        self._page_add_text_footer(num, footer)
     }
 }
 

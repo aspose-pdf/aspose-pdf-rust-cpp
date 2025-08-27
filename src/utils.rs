@@ -1,3 +1,5 @@
+// Prints debug messages only in debug builds.
+// This macro does nothing in release builds.
 #[allow(unused_macros)]
 #[macro_export]
 macro_rules! debug_println {
