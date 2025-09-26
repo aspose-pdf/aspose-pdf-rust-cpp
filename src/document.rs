@@ -1,9 +1,11 @@
 #![allow(unsafe_code)]
+use serde_json;
 use std::ffi::{c_char, c_void, CStr, CString};
 
 pub use super::enums::*;
 pub use super::errors::*;
 use super::extern_c::*;
+pub use super::product_info::*;
 
 use crate::debug_println;
 use crate::generate_fn;
@@ -54,6 +56,33 @@ impl Document {
             Err(PdfError::CoreExceptionError(error_str))
         } else {
             Ok(doctmp)
+        }
+    }
+
+    /// Returns metadata information about the Aspose.PDF for Rust via C++.
+    ///
+    /// The metadata is returned as a `ProductInfo` struct, deserialized from a JSON string.
+    /// It includes product name, version, release date, licensing status, and related details.
+    ///
+    /// See also: `product_info.rs`
+    ///
+    /// # Returns
+    /// Returns `Ok(ProductInfo)` containing product metadata, or `Err(PdfError)` if failed.
+    pub fn about(&self) -> Result<ProductInfo, PdfError> {
+        debug_println!("call Document::about()");
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        let char_ptr = unsafe { PDFDocument_About(self.pdfdocumentclass, error.as_mut_ptr()) };
+        let c_str = unsafe { CStr::from_ptr(char_ptr) };
+        let json_str = c_str.to_str().map(|s| s.to_owned()).unwrap();
+        unsafe { c_free_string(char_ptr as *mut c_char) };
+        let error_str = Self::get_error(&mut error);
+        if error_str.is_empty() {
+            let info: ProductInfo = serde_json::from_str(&json_str)
+                .map_err(|e| PdfError::CoreExceptionError(e.to_string()))?;
+            Ok(info)
+        } else {
+            debug_println!("error Document::about(): {error_str:?}");
+            Err(PdfError::CoreExceptionError(error_str))
         }
     }
 
@@ -233,6 +262,7 @@ impl Document {
     generate_fn!(_save_booklet, PDFDocument_Save_Booklet, filename: &str);
     generate_fn!(_save_n_up, PDFDocument_Save_NUp, filename: &str, columns: i32, rows: i32);
     generate_fn!(_save_tiff, PDFDocument_Save_Tiff, resolution_dpi: i32, filename: &str);
+    generate_fn!(_save_svg_zip, PDFDocument_Save_SvgZip, filename: &str);
     generate_fn!(_export_fdf, PDFDocument_Export_Fdf, filename: &str);
     generate_fn!(_export_xfdf, PDFDocument_Export_Xfdf, filename: &str);
     generate_fn!(_export_xml, PDFDocument_Export_Xml, filename: &str);
@@ -246,6 +276,15 @@ impl Document {
     generate_fn!(_add_page_num, PDFDocument_AddPageNum);
     generate_fn!(_add_text_header, PDFDocument_AddTextHeader, header: &str);
     generate_fn!(_add_text_footer, PDFDocument_AddTextFooter, footer: &str);
+
+    generate_fn!(_flatten, PDFDocument_Flatten);
+    generate_fn!(_remove_annotations, PDFDocument_RemoveAnnotations);
+    generate_fn!(_remove_attachments, PDFDocument_RemoveAttachments);
+    generate_fn!(_remove_blank_pages, PDFDocument_RemoveBlankPages);
+    generate_fn!(_remove_bookmarks, PDFDocument_RemoveBookmarks);
+    generate_fn!(_remove_hidden_text, PDFDocument_RemoveHiddenText);
+    generate_fn!(_remove_images, PDFDocument_RemoveImages);
+    generate_fn!(_remove_javascripts, PDFDocument_RemoveJavaScripts);
 
     generate_fn!(_page_to_jpg, PDFDocument_Page_to_Jpg, num: i32, resolution_dpi: i32, filename: &str);
     generate_fn!(_page_to_png, PDFDocument_Page_to_Png, num: i32, resolution_dpi: i32, filename: &str);
@@ -265,6 +304,10 @@ impl Document {
     generate_fn!(_page_add_page_num, PDFDocument_Page_AddPageNum, num: i32);
     generate_fn!(_page_add_text_header, PDFDocument_Page_AddTextHeader, num: i32, header: &str);
     generate_fn!(_page_add_text_footer, PDFDocument_Page_AddTextFooter, num: i32, footer: &str);
+
+    generate_fn!(_page_remove_annotations, PDFDocument_Page_RemoveAnnotations, num: i32);
+    generate_fn!(_page_remove_hidden_text, PDFDocument_Page_RemoveHiddenText, num: i32);
+    generate_fn!(_page_remove_images, PDFDocument_Page_RemoveImages, num: i32);
 
     /// Save the previously opened PDF-document.
     ///
@@ -442,6 +485,17 @@ impl Document {
         self._save_tiff(resolution_dpi, filename)
     }
 
+    /// Convert and save the previously opened PDF-document as SVG-archive.
+    ///
+    /// # Arguments
+    /// * `filename` - The path to the output SVG-archive.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn save_svg_zip(&self, filename: &str) -> Result<(), PdfError> {
+        self._save_svg_zip(filename)
+    }
+
     /// Export from the previously opened PDF-document with AcroForm to FDF-document.
     ///
     /// # Arguments
@@ -547,6 +601,70 @@ impl Document {
     /// Returns `PdfError` if the operation fails.
     pub fn add_text_footer(&self, footer: &str) -> Result<(), PdfError> {
         self._add_text_footer(footer)
+    }
+
+    /// Flatten PDF-document
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn flatten(&self) -> Result<(), PdfError> {
+        self._flatten()
+    }
+
+    /// Remove annotations from PDF-document
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn remove_annotations(&self) -> Result<(), PdfError> {
+        self._remove_annotations()
+    }
+
+    /// Remove attachments from PDF-document
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn remove_attachments(&self) -> Result<(), PdfError> {
+        self._remove_attachments()
+    }
+
+    /// Remove blank pages from PDF-document
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn remove_blank_pages(&self) -> Result<(), PdfError> {
+        self._remove_blank_pages()
+    }
+
+    /// Remove bookmarks from PDF-document
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn remove_bookmarks(&self) -> Result<(), PdfError> {
+        self._remove_bookmarks()
+    }
+
+    /// Remove hidden text from PDF-document
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn remove_hidden_text(&self) -> Result<(), PdfError> {
+        self._remove_hidden_text()
+    }
+
+    /// Remove images from PDF-document
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn remove_images(&self) -> Result<(), PdfError> {
+        self._remove_images()
+    }
+
+    /// Remove java scripts from PDF-document
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn remove_javascripts(&self) -> Result<(), PdfError> {
+        self._remove_javascripts()
     }
 
     /// Convert and save the specified page as Jpg-image.
@@ -767,6 +885,39 @@ impl Document {
     /// Returns `PdfError` if the operation fails.
     pub fn page_add_text_footer(&self, num: i32, footer: &str) -> Result<(), PdfError> {
         self._page_add_text_footer(num, footer)
+    }
+
+    /// Remove annotations in page.
+    ///
+    /// # Arguments
+    /// * `num` - The page number (1-based).
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn page_remove_annotations(&self, num: i32) -> Result<(), PdfError> {
+        self._page_remove_annotations(num)
+    }
+
+    /// Remove hidden text in page.
+    ///
+    /// # Arguments
+    /// * `num` - The page number (1-based).
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn page_remove_hidden_text(&self, num: i32) -> Result<(), PdfError> {
+        self._page_remove_hidden_text(num)
+    }
+
+    /// Remove images in page.
+    ///
+    /// # Arguments
+    /// * `num` - The page number (1-based).
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn page_remove_images(&self, num: i32) -> Result<(), PdfError> {
+        self._page_remove_images(num)
     }
 }
 

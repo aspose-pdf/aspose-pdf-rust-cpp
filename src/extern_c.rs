@@ -3,6 +3,10 @@ extern "C" {
     pub fn PDFDocument_Open(filename: *const c_char, error: *mut *const c_char) -> *const c_void;
     pub fn PDFDocument_New(error: *mut *const c_char) -> *const c_void;
     pub fn PDFDocument_Release(pdfdocumentclass: *const c_void, error: *mut *const c_char);
+    pub fn PDFDocument_About(
+        pdfdocumentclass: *const c_void,
+        error: *mut *const c_char,
+    ) -> *const c_char;
     pub fn PDFDocument_set_License(
         pdfdocumentclass: *const c_void,
         filename: *const c_char,
@@ -49,6 +53,23 @@ extern "C" {
     pub fn PDFDocument_AddTextFooter(
         pdfdocumentclass: *const c_void,
         footer: *const c_char,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_Flatten(pdfdocumentclass: *const c_void, error: *mut *const c_char);
+    pub fn PDFDocument_RemoveAnnotations(
+        pdfdocumentclass: *const c_void,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_RemoveAttachments(
+        pdfdocumentclass: *const c_void,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_RemoveBlankPages(pdfdocumentclass: *const c_void, error: *mut *const c_char);
+    pub fn PDFDocument_RemoveBookmarks(pdfdocumentclass: *const c_void, error: *mut *const c_char);
+    pub fn PDFDocument_RemoveHiddenText(pdfdocumentclass: *const c_void, error: *mut *const c_char);
+    pub fn PDFDocument_RemoveImages(pdfdocumentclass: *const c_void, error: *mut *const c_char);
+    pub fn PDFDocument_RemoveJavaScripts(
+        pdfdocumentclass: *const c_void,
         error: *mut *const c_char,
     );
     pub fn PDFDocument_Page_get_Count(
@@ -170,6 +191,11 @@ extern "C" {
         filename: *const c_char,
         error: *mut *const c_char,
     );
+    pub fn PDFDocument_Save_SvgZip(
+        pdfdocumentclass: *const c_void,
+        filename: *const c_char,
+        error: *mut *const c_char,
+    );
     pub fn PDFDocument_Export_Fdf(
         pdfdocumentclass: *const c_void,
         filename: *const c_char,
@@ -241,6 +267,21 @@ extern "C" {
         pdfdocumentclass: *const c_void,
         num: c_int,
         footer: *const c_char,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_Page_RemoveAnnotations(
+        pdfdocumentclass: *const c_void,
+        num: c_int,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_Page_RemoveHiddenText(
+        pdfdocumentclass: *const c_void,
+        num: c_int,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_Page_RemoveImages(
+        pdfdocumentclass: *const c_void,
+        num: c_int,
         error: *mut *const c_char,
     );
 }

@@ -3,6 +3,7 @@ mod document_gen_fn;
 mod enums;
 mod errors;
 mod extern_c;
+mod product_info;
 mod utils;
 pub use crate::document::*;
 //pub use crate::{document::*, enums::*, errors::*};
@@ -11,6 +12,22 @@ pub use crate::document::*;
 mod test {
     use super::*;
     use std::error::Error;
+
+    #[test]
+    fn pdf_about() -> Result<(), Box<dyn Error>> {
+        let pdf = Document::new()?;
+        let info = pdf.about()?;
+        assert!(!info.product.is_empty(), "product is empty");
+        assert!(!info.family.is_empty(), "family is empty");
+        assert!(!info.version.is_empty(), "version is empty");
+        assert!(!info.release_date.is_empty(), "release_date is empty");
+        assert!(!info.producer.is_empty(), "producer is empty");
+        assert!(
+            matches!(info.is_licensed, true | false),
+            "is_licensed is not a boolean"
+        );
+        Ok(())
+    }
 
     #[test]
     fn pdf_new_and_save() -> Result<(), Box<dyn Error>> {
@@ -110,6 +127,29 @@ mod test {
                 "add_text_footer",
                 Box::new(|doc| doc.add_text_footer("FOOTER")),
             ),
+            ("flatten", Box::new(|doc| doc.flatten())),
+            (
+                "remove_annotations",
+                Box::new(|doc| doc.remove_annotations()),
+            ),
+            (
+                "remove_attachments",
+                Box::new(|doc| doc.remove_attachments()),
+            ),
+            (
+                "remove_blank_pages",
+                Box::new(|doc| doc.remove_blank_pages()),
+            ),
+            ("remove_bookmarks", Box::new(|doc| doc.remove_bookmarks())),
+            (
+                "remove_hidden_text",
+                Box::new(|doc| doc.remove_hidden_text()),
+            ),
+            ("remove_images", Box::new(|doc| doc.remove_images())),
+            (
+                "remove_javascripts",
+                Box::new(|doc| doc.remove_javascripts()),
+            ),
             (
                 "page_rotate",
                 Box::new(|doc| doc.page_rotate(1, crate::enums::Rotation::On180)),
@@ -138,6 +178,18 @@ mod test {
             (
                 "page_add_text_footer",
                 Box::new(|doc| doc.page_add_text_footer(1, "FOOTER")),
+            ),
+            (
+                "page_remove_annotations",
+                Box::new(|doc| doc.page_remove_annotations(1)),
+            ),
+            (
+                "page_remove_hidden_text",
+                Box::new(|doc| doc.page_remove_hidden_text(1)),
+            ),
+            (
+                "page_remove_images",
+                Box::new(|doc| doc.page_remove_images(1)),
             ),
         ];
 
@@ -224,6 +276,7 @@ mod test {
             ("save_booklet", Box::new(|doc, path| doc.save_booklet(path))),
             ("save_n_up", Box::new(|doc, path| doc.save_n_up(path, 2, 2))),
             ("save_tiff", Box::new(|doc, path| doc.save_tiff(150, path))),
+            ("save_svg_zip", Box::new(|doc, path| doc.save_svg_zip(path))),
             ("export_fdf", Box::new(|doc, path| doc.export_fdf(path))),
             ("export_xfdf", Box::new(|doc, path| doc.export_xfdf(path))),
             ("export_xml", Box::new(|doc, path| doc.export_xml(path))),

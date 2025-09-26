@@ -1,4 +1,4 @@
-# Aspose.PDF for Rust via C++
+﻿# Aspose.PDF for Rust via C++
 
 The package asposepdf is a powerful toolkit that allows developers to manipulate PDF files directly and helps do various tasks for PDF.
 Contains unique features for converting PDF to other formats.
@@ -18,14 +18,18 @@ Contains unique features for converting PDF to other formats.
 - **Document-level operations**
   - `optimize`, `optimize_resource`, `grayscale`, `rotate`, `set_background`, `repair`
     Optimize PDF layout and resources, convert to grayscale, rotate pages, set background, and repair corrupted documents.
-  - `replace_text`, `add_page_num`, `add_text_header`, `add_text_footer`
-    Replace text, add page numbers, and insert custom text in the header or footer of the document.
+  - `replace_text`, `add_page_num`, `add_text_header`, `add_text_footer`, `flatten`
+    Replace text, add page numbers, insert custom text in the header or footer, and flatten PDF-document.
+  - `remove_annotations`, `remove_attachments`, `remove_blank_pages`, `remove_bookmarks`, `remove_hidden_text`, `remove_images`, `remove_javascripts`
+    Remove annotations, attachments, blank pages, bookmarks, hidden text, images, and embedded JavaScript code.
 
 - **Page-level operations**
   - `rotate`, `set_size`, `grayscale`, `add_text`
     Rotate individual pages, set page size, convert pages to grayscale, and add text.
   - `page_replace_text`, `page_add_page_num`, `page_add_text_header`, `page_add_text_footer`
     Replace text on a specific page, add page number to a page, and insert custom text in the header or footer of a page.
+  - `page_remove_annotations`, `page_remove_hidden_text`, `page_remove_images`
+    Remove annotations, hidden text, and images on a specific page.
 
 - **Content extraction**
   - `extract_text`
@@ -43,7 +47,13 @@ Contains unique features for converting PDF to other formats.
 - **PDFs:**
   - `N-UP`, `BOOKLET`
 - **Others:**
-  - `EPUB`, `DICOM`, `SVG`, `XPS`, `TEX`, `TXT`, `MARKDOWN`
+  - `EPUB`, `DICOM`, `SVG`, `SVG(ZIP)`, `XPS`, `TEX`, `TXT`, `MARKDOWN`
+
+### Metadata
+
+- **Product Info:**
+  - `about`
+    Return metadata information about the Aspose.PDF for Rust via C++ with product name, version, release date, and license status.
 
 ## Platforms
 
@@ -125,7 +135,7 @@ This package includes precompiled native libraries (`.dll`, `.so`, `.dylib`) whi
 2. **Build** your project (`cargo build`). On the first build, the appropriate dynamic library for your platform will be automatically unpacked from the `.bz2` archive in the `lib` folder. This may cause a short delay.
 
 > **Notes**
-> - You do not need to manually download or extract any files � everything is included in the GitHub repository.
+> - You do not need to manually download or extract any files — everything is included in the GitHub repository.
 > - All `.bz2` archives have matching `.sha256` checksum files. The checksum is verified before unpacking.
 > - If the checksum verification fails or the archive is missing, the build will fail with a detailed error.
 > - The build script links the appropriate native library and ensures runtime availability using platform-specific options.

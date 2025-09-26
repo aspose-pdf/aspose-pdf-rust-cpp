@@ -11,6 +11,13 @@ use bzip2::read::BzDecoder;
 use sha2::{Digest, Sha256};
 
 fn main() -> Result<(), Box<dyn Error>> {
+    // If we're in publish mode (e.g. publishing to crates.io), skip library unpacking and validation
+    // This is useful because large binaries (.dll, .so, .dylib) are not included in the published crate
+    if std::env::var("ASPOSE_PDF_PUBLISH").is_ok() {
+        println!("cargo:warning=ASPOSE_PDF_PUBLISH detected - skipping binary checks");
+        return Ok(());
+    }
+
     let manifest_dir = env::var("CARGO_MANIFEST_DIR")?;
     let lib_dir = if let Ok(custom) = env::var("ASPOSE_PDF_LIB_DIR") {
         Path::new(&custom).to_path_buf()

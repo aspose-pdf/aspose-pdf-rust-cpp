@@ -1,0 +1,11 @@
+/lib/*.dll.bz2
+/lib/*.dll.bz2.sha256
+/lib/*.so.bz2
+/lib/*.so.bz2.sha256
+/lib/*.dylib.bz2
+/lib/*.dylib.bz2.sha256
+/lib/*.lib
+/lib/*.dll
+/lib/*.so
+/lib/*.dylib
+/target
