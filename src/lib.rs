@@ -45,6 +45,185 @@ mod test {
     }
 
     #[test]
+    fn pdf_append() -> Result<(), Box<dyn std::error::Error>> {
+        // Create the first PDF-document
+        let pdf1 = Document::new()?;
+        for _ in 0..2 {
+            pdf1.page_add()?;
+        }
+
+        // Verify the first document has 2 pages
+        let page_count1 = pdf1.page_count()?;
+        assert_eq!(page_count1, 2);
+
+        // Create the second PDF-document
+        let pdf2 = Document::new()?;
+        for _ in 0..2 {
+            pdf2.page_add()?;
+        }
+
+        // Verify the second document has 2 pages
+        let page_count2 = pdf2.page_count()?;
+        assert_eq!(page_count2, 2);
+
+        // Append pdf2 into pdf1
+        pdf1.append(&pdf2)?;
+
+        // Verify the first document now has 4 pages
+        let page_count1_after_append = pdf1.page_count()?;
+        assert_eq!(page_count1_after_append, 4);
+
+        Ok(())
+    }
+
+    #[test]
+    fn pdf_append_pages() -> Result<(), Box<dyn std::error::Error>> {
+        // Create a base document with exactly 4 pages
+        let pdf4pages = Document::new()?;
+        for _ in 0..4 {
+            pdf4pages.page_add()?;
+        }
+
+        let page_count = pdf4pages.page_count()?;
+        assert_eq!(page_count, 4, "Expected 4 pages in base document");
+
+        // Define test cases for different page ranges
+        let test_cases = vec![
+            ("EmptyRangeMeansAll", "", 4),
+            ("DashMeansAll", "-", 4),
+            ("FirstThreePages", "-3", 3),
+            ("SecondToEnd", "2-", 3),
+            ("SpecificPages134", "1,3,4", 3),
+            ("OnlyPage2", "2", 1),
+            ("Range2To3", "2-3", 2),
+            ("NonSequential", "1,2,4", 3),
+            ("AllPagesExplicit", "1,2,3,4", 4),
+        ];
+
+        for (name, pagerange, want_pages) in test_cases {
+            // Running subtest
+            let test_doc = Document::new()?;
+            test_doc.append_pages(&pdf4pages, pagerange)?;
+
+            let count = test_doc.page_count()?;
+            assert_eq!(
+                count, want_pages,
+                "Subtest '{}': expected {} pages, got {}",
+                name, want_pages, count
+            );
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn pdf_merge_documents() -> Result<(), Box<dyn std::error::Error>> {
+        // Create the first PDF-document
+        let pdf1 = Document::new()?;
+        pdf1.page_add()?;
+
+        // Create the second PDF-document
+        let pdf2 = Document::new()?;
+        pdf2.page_add()?;
+
+        // Create the third PDF-document
+        let pdf3 = Document::new()?;
+        pdf3.page_add()?;
+        pdf3.page_add()?; // Add second page
+
+        // Merge all three documents
+        let merged = Document::merge_documents(&[&pdf1, &pdf2, &pdf3])?;
+
+        // Check the page count in the merged document (should be 4 pages)
+        let page_count = merged.page_count()?;
+        assert_eq!(page_count, 4);
+
+        Ok(())
+    }
+
+    #[test]
+    fn pdf_split_document() -> Result<(), Box<dyn Error>> {
+        let pdf = Document::new()?;
+        for _ in 0..4 {
+            pdf.page_add()?;
+        }
+
+        let pdfs = Document::split_document(&pdf, "1-2;3;4-")?;
+
+        assert_eq!(pdfs.len(), 3);
+
+        let count1 = pdfs[0].page_count()?;
+        assert_eq!(count1, 2);
+
+        let count2 = pdfs[1].page_count()?;
+        assert_eq!(count2, 1);
+
+        let count3 = pdfs[2].page_count()?;
+        assert_eq!(count3, 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn pdf_split() -> Result<(), Box<dyn Error>> {
+        let pdf = Document::new()?;
+        for _ in 0..4 {
+            pdf.page_add()?;
+        }
+
+        let pdfs = pdf.split("1-2;3;4-")?;
+
+        assert_eq!(pdfs.len(), 3);
+
+        let count1 = pdfs[0].page_count()?;
+        assert_eq!(count1, 2);
+
+        let count2 = pdfs[1].page_count()?;
+        assert_eq!(count2, 1);
+
+        let count3 = pdfs[2].page_count()?;
+        assert_eq!(count3, 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn pdf_split_at_page() -> Result<(), Box<dyn Error>> {
+        let pdf = Document::new()?;
+        for _ in 0..4 {
+            pdf.page_add()?;
+        }
+
+        let (left, right) = Document::split_at_page(&pdf, 2)?;
+
+        let count_left = left.page_count()?;
+        assert_eq!(count_left, 2);
+
+        let count_right = right.page_count()?;
+        assert_eq!(count_right, 2);
+
+        Ok(())
+    }
+
+    #[test]
+    fn pdf_split_at() -> Result<(), Box<dyn Error>> {
+        let pdf = Document::new()?;
+        for _ in 0..4 {
+            pdf.page_add()?;
+        }
+
+        let (left, right) = pdf.split_at(2)?;
+
+        let count_left = left.page_count()?;
+        assert_eq!(count_left, 2);
+
+        let count_right = right.page_count()?;
+        assert_eq!(count_right, 2);
+
+        Ok(())
+    }
+
+    #[test]
     fn pdf_pages_operations() -> Result<(), Box<dyn Error>> {
         let pdf = Document::new()?;
 
@@ -150,6 +329,7 @@ mod test {
                 "remove_javascripts",
                 Box::new(|doc| doc.remove_javascripts()),
             ),
+            ("remove_tables", Box::new(|doc| doc.remove_tables())),
             (
                 "page_rotate",
                 Box::new(|doc| doc.page_rotate(1, crate::enums::Rotation::On180)),
@@ -190,6 +370,10 @@ mod test {
             (
                 "page_remove_images",
                 Box::new(|doc| doc.page_remove_images(1)),
+            ),
+            (
+                "page_remove_tables",
+                Box::new(|doc| doc.page_remove_tables(1)),
             ),
         ];
 
@@ -245,6 +429,46 @@ mod test {
         // Reopen saved file
         let reopened = Document::open(&path)?;
         reopened.save()?; // Save again to confirm
+
+        Ok(())
+    }
+
+    #[test]
+    fn pdf_core_stat_operations() -> Result<(), Box<dyn std::error::Error>> {
+        // Create a new PDF-document
+        let doc = Document::new()?;
+
+        // Add a new blank page
+        doc.page_add()?;
+
+        // Return word count in PDF-document
+        assert_eq!(doc.word_count()?, 0);
+
+        // Return character count in PDF-document
+        assert_eq!(doc.character_count()?, 0);
+
+        // Return word count on specified page in PDF-document
+        assert_eq!(doc.page_word_count(1)?, 0);
+
+        // Return character count on specified page in PDF-document
+        assert_eq!(doc.page_character_count(1)?, 0);
+
+        // Return page is blank in PDF-document
+        assert_eq!(doc.page_is_blank(1)?, true);
+
+        Ok(())
+    }
+
+    #[test]
+    fn pdf_core_bytes() -> Result<(), Box<dyn std::error::Error>> {
+        // Create a new PDF-document
+        let doc = Document::new()?;
+
+        // Return the contents of the PDF-document as a byte vector
+        let data = doc.bytes()?;
+
+        // Assert that the byte vector is not empty
+        assert_ne!(data.len(), 0, "Expected non-empty PDF byte data");
 
         Ok(())
     }
@@ -330,7 +554,7 @@ mod test {
     }
 
     #[test]
-    fn test_page_operations() -> Result<(), Box<dyn std::error::Error>> {
+    fn pdf_page_operations() -> Result<(), Box<dyn std::error::Error>> {
         let doc = Document::new()?; // Create a new document
 
         // Initially, page count should be zero

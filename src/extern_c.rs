@@ -18,10 +18,35 @@ extern "C" {
         filename: *const c_char,
         error: *mut *const c_char,
     );
+    pub fn PDFDocument_Save_Memory(
+        pdfdocumentclass: *const c_void,
+        buffer_out: *mut *mut u8,
+        size_out: *mut c_int,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_Append(
+        pdfdocumentclass: *const c_void,
+        otherpdfdocumentclass: *const c_void,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_AppendPages(
+        pdfdocumentclass: *const c_void,
+        otherpdfdocumentclass: *const c_void,
+        pagerange: *const c_char,
+        error: *mut *const c_char,
+    );
     pub fn PDFDocument_ExtractText(
         pdfdocumentclass: *const c_void,
         error: *mut *const c_char,
     ) -> *const c_char;
+    pub fn PDFDocument_get_WordCount(
+        pdfdocumentclass: *const c_void,
+        error: *mut *const c_char,
+    ) -> c_int;
+    pub fn PDFDocument_get_CharacterCount(
+        pdfdocumentclass: *const c_void,
+        error: *mut *const c_char,
+    ) -> c_int;
     pub fn PDFDocument_Optimize(pdfdocumentclass: *const c_void, error: *mut *const c_char);
     pub fn PDFDocument_OptimizeResource(pdfdocumentclass: *const c_void, error: *mut *const c_char);
     pub fn PDFDocument_Repair(pdfdocumentclass: *const c_void, error: *mut *const c_char);
@@ -72,8 +97,24 @@ extern "C" {
         pdfdocumentclass: *const c_void,
         error: *mut *const c_char,
     );
+    pub fn PDFDocument_RemoveTables(pdfdocumentclass: *const c_void, error: *mut *const c_char);
     pub fn PDFDocument_Page_get_Count(
         pdfdocumentclass: *const c_void,
+        error: *mut *const c_char,
+    ) -> c_int;
+    pub fn PDFDocument_Page_get_WordCount(
+        pdfdocumentclass: *const c_void,
+        num: c_int,
+        error: *mut *const c_char,
+    ) -> c_int;
+    pub fn PDFDocument_Page_get_CharacterCount(
+        pdfdocumentclass: *const c_void,
+        num: c_int,
+        error: *mut *const c_char,
+    ) -> c_int;
+    pub fn PDFDocument_Page_is_Blank(
+        pdfdocumentclass: *const c_void,
+        num: c_int,
         error: *mut *const c_char,
     ) -> c_int;
     pub fn PDFDocument_Page_to_Jpg(
@@ -284,8 +325,14 @@ extern "C" {
         num: c_int,
         error: *mut *const c_char,
     );
+    pub fn PDFDocument_Page_RemoveTables(
+        pdfdocumentclass: *const c_void,
+        num: c_int,
+        error: *mut *const c_char,
+    );
 }
 
 extern "C" {
     pub fn c_free_string(str: *mut c_char);
+    pub fn c_free_buffer(ptr: *mut c_void);
 }

@@ -9,7 +9,9 @@ Contains unique features for converting PDF to other formats.
 
 - **Create and manage documents**
   - `new`, `open`, `save`, `save_as`, `set_license`
-    Create, load, save as, and save PDF; apply license keys.
+    Create, load, save as, and save PDF-document; apply license keys.
+  - `append`, `append_pages`, `merge_documents`, `split_document`, `split`, `split_at_page`, `split_at`
+    Append full documents or specific pages; merge multiple PDF-documents; split a PDF-document by page ranges or at a specific page.
 
 - **Page management**
   - `add`, `insert`, `delete`, `count`
@@ -17,25 +19,25 @@ Contains unique features for converting PDF to other formats.
 
 - **Document-level operations**
   - `optimize`, `optimize_resource`, `grayscale`, `rotate`, `set_background`, `repair`
-    Optimize PDF layout and resources, convert to grayscale, rotate pages, set background, and repair corrupted documents.
+    Optimize PDF-document layout and resources, convert to grayscale, rotate pages, set background, and repair corrupted documents.
   - `replace_text`, `add_page_num`, `add_text_header`, `add_text_footer`, `flatten`
     Replace text, add page numbers, insert custom text in the header or footer, and flatten PDF-document.
-  - `remove_annotations`, `remove_attachments`, `remove_blank_pages`, `remove_bookmarks`, `remove_hidden_text`, `remove_images`, `remove_javascripts`
-    Remove annotations, attachments, blank pages, bookmarks, hidden text, images, and embedded JavaScript code.
+  - `remove_annotations`, `remove_attachments`, `remove_blank_pages`, `remove_bookmarks`, `remove_hidden_text`, `remove_images`, `remove_tables`, `remove_javascripts`
+    Remove annotations, attachments, blank pages, bookmarks, hidden text, images, tables, and embedded JavaScript code.
 
 - **Page-level operations**
   - `rotate`, `set_size`, `grayscale`, `add_text`
     Rotate individual pages, set page size, convert pages to grayscale, and add text.
   - `page_replace_text`, `page_add_page_num`, `page_add_text_header`, `page_add_text_footer`
     Replace text on a specific page, add page number to a page, and insert custom text in the header or footer of a page.
-  - `page_remove_annotations`, `page_remove_hidden_text`, `page_remove_images`
-    Remove annotations, hidden text, and images on a specific page.
+  - `page_remove_annotations`, `page_remove_hidden_text`, `page_remove_images`, `page_remove_tables`
+    Remove annotations, hidden text, images and tables on a specific page.
 
 - **Content extraction**
-  - `extract_text`
-    Retrieve plain text content from PDF pages.
+  - `extract_text`, `bytes`
+    Retrieve plain text content, and raw data from PDF-document.
   - `export_fdf`, `export_xfdf`, `export_xml`
-    Export data from the previously opened PDF document with AcroForm to FDF, XFDF, or XML formats.
+    Export data from the previously opened PDF-document with AcroForm to FDF, XFDF, or XML formats.
 
 ### PDF converting and saving
 
@@ -54,6 +56,16 @@ Contains unique features for converting PDF to other formats.
 - **Product Info:**
   - `about`
     Return metadata information about the Aspose.PDF for Rust via C++ with product name, version, release date, and license status.
+
+### PDF analysis
+
+- **Document statistics:**
+  - `word_count`, `character_count`
+    Return the number of words and characters in the entire PDF document.
+
+- **Page statistics:**
+  - `page_word_count`, `page_character_count`, `page_is_blank`
+    Return the number of words and characters on a specific page and check if a page is blank.
 
 ## Platforms
 
