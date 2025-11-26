@@ -651,6 +651,129 @@ impl Document {
         error_str
     }
 
+    /// Add watermark to PDF-document.
+    ///
+    /// # Arguments
+    /// * `text` - The watermark text.
+    /// * `font_name` - The font name.
+    /// * `font_size` - The font size.
+    /// * `foreground_color` - The text color (hexadecimal format "#RRGGBB", where RR-red, GG-green and BB-blue hexadecimal integers).
+    /// * `x_position` - The 'x' watermark position.
+    /// * `y_position` - The 'y' watermark position.
+    /// * `rotation` - The watermark rotation (0-360).
+    /// * `is_background` - The background.
+    /// * `opacity` - The opacity (decimal).
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the rotation operation fails.
+    pub fn add_watermark(
+        &self,
+        text: &str,
+        font_name: &str,
+        font_size: f64,
+        foreground_color: &str,
+        x_position: i32,
+        y_position: i32,
+        rotation: i32,
+        is_background: bool,
+        opacity: f64,
+    ) -> Result<(), PdfError> {
+        debug_println!("call Document::add_watermark({text:?})");
+        let c_string_text = std::ffi::CString::new(text).unwrap();
+        let c_char_ptr_text = c_string_text.as_ptr();
+        let c_string_font_name = std::ffi::CString::new(font_name).unwrap();
+        let c_char_ptr_font_name = c_string_font_name.as_ptr();
+        let c_string_foreground_color = std::ffi::CString::new(foreground_color).unwrap();
+        let c_char_ptr_foreground_color = c_string_foreground_color.as_ptr();
+        let _is_background: i32 = if is_background { 1 } else { 0 };
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        unsafe {
+            PDFDocument_AddWatermark(
+                self.pdfdocumentclass,
+                c_char_ptr_text as *const c_char,
+                c_char_ptr_font_name as *const c_char,
+                font_size,
+                c_char_ptr_foreground_color as *const c_char,
+                x_position,
+                y_position,
+                rotation,
+                _is_background,
+                opacity,
+                error.as_mut_ptr(),
+            )
+        };
+        let error_str = Self::get_error(&mut error);
+        if error_str.is_empty() {
+            Ok(())
+        } else {
+            debug_println!("error Document::add_watermark({text:?}): {error_str:?}");
+            Err(PdfError::CoreExceptionError(error_str))
+        }
+    }
+
+    /// Add watermark on page.
+    ///
+    /// # Arguments
+    /// * `num` - The page number (1-based).
+    /// * `text` - The watermark text.
+    /// * `font_name` - The font name.
+    /// * `font_size` - The font size.
+    /// * `foreground_color` - The text color (hexadecimal format "#RRGGBB", where RR-red, GG-green and BB-blue hexadecimal integers).
+    /// * `x_position` - The 'x' watermark position.
+    /// * `y_position` - The 'y' watermark position.
+    /// * `rotation` - The watermark rotation (0-360).
+    /// * `is_background` - The background.
+    /// * `opacity` - The opacity (decimal).
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the rotation operation fails.
+    pub fn page_add_watermark(
+        &self,
+        num: i32,
+        text: &str,
+        font_name: &str,
+        font_size: f64,
+        foreground_color: &str,
+        x_position: i32,
+        y_position: i32,
+        rotation: i32,
+        is_background: bool,
+        opacity: f64,
+    ) -> Result<(), PdfError> {
+        debug_println!("call Document::page_add_watermark({text:?})");
+        let c_string_text = std::ffi::CString::new(text).unwrap();
+        let c_char_ptr_text = c_string_text.as_ptr();
+        let c_string_font_name = std::ffi::CString::new(font_name).unwrap();
+        let c_char_ptr_font_name = c_string_font_name.as_ptr();
+        let c_string_foreground_color = std::ffi::CString::new(foreground_color).unwrap();
+        let c_char_ptr_foreground_color = c_string_foreground_color.as_ptr();
+        let _is_background: i32 = if is_background { 1 } else { 0 };
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        unsafe {
+            PDFDocument_Page_AddWatermark(
+                self.pdfdocumentclass,
+                num,
+                c_char_ptr_text as *const c_char,
+                c_char_ptr_font_name as *const c_char,
+                font_size,
+                c_char_ptr_foreground_color as *const c_char,
+                x_position,
+                y_position,
+                rotation,
+                _is_background,
+                opacity,
+                error.as_mut_ptr(),
+            )
+        };
+        let error_str = Self::get_error(&mut error);
+        if error_str.is_empty() {
+            Ok(())
+        } else {
+            debug_println!("error Document::page_add_watermark({text:?}): {error_str:?}");
+            Err(PdfError::CoreExceptionError(error_str))
+        }
+    }
+
     // Generated functions
     generate_fn!(_save, PDFDocument_Save);
     generate_fn!(_save_as, PDFDocument_Save_As, filename: &str);
@@ -676,15 +799,18 @@ impl Document {
 
     generate_fn!(_optimize, PDFDocument_Optimize);
     generate_fn!(_optimize_resource, PDFDocument_OptimizeResource);
+    generate_fn!(_optimize_file_size, PDFDocument_OptimizeFileSize, image_quality: i32);
     generate_fn!(_repair, PDFDocument_Repair);
     generate_fn!(_grayscale, PDFDocument_Grayscale);
+    generate_fn!(_flatten, PDFDocument_Flatten);
+    generate_fn!(_embed_fonts, PDFDocument_EmbedFonts);
+    generate_fn!(_unembed_fonts, PDFDocument_UnembedFonts);
 
     generate_fn!(_replace_text, PDFDocument_ReplaceText, find_text: &str, replace_text: &str);
     generate_fn!(_add_page_num, PDFDocument_AddPageNum);
     generate_fn!(_add_text_header, PDFDocument_AddTextHeader, header: &str);
     generate_fn!(_add_text_footer, PDFDocument_AddTextFooter, footer: &str);
 
-    generate_fn!(_flatten, PDFDocument_Flatten);
     generate_fn!(_remove_annotations, PDFDocument_RemoveAnnotations);
     generate_fn!(_remove_attachments, PDFDocument_RemoveAttachments);
     generate_fn!(_remove_blank_pages, PDFDocument_RemoveBlankPages);
@@ -693,6 +819,7 @@ impl Document {
     generate_fn!(_remove_images, PDFDocument_RemoveImages);
     generate_fn!(_remove_javascripts, PDFDocument_RemoveJavaScripts);
     generate_fn!(_remove_tables, PDFDocument_RemoveTables);
+    generate_fn!(_remove_watermarks, PDFDocument_RemoveWatermarks);
 
     generate_fn!(_page_to_jpg, PDFDocument_Page_to_Jpg, num: i32, resolution_dpi: i32, filename: &str);
     generate_fn!(_page_to_png, PDFDocument_Page_to_Png, num: i32, resolution_dpi: i32, filename: &str);
@@ -717,6 +844,7 @@ impl Document {
     generate_fn!(_page_remove_hidden_text, PDFDocument_Page_RemoveHiddenText, num: i32);
     generate_fn!(_page_remove_images, PDFDocument_Page_RemoveImages, num: i32);
     generate_fn!(_page_remove_tables, PDFDocument_Page_RemoveTables, num: i32);
+    generate_fn!(_page_remove_watermarks, PDFDocument_Page_RemoveWatermarks, num: i32);
 
     /// Save the previously opened PDF-document.
     ///
@@ -954,6 +1082,17 @@ impl Document {
         self._optimize_resource()
     }
 
+    /// Optimizes size of PDF-document with image compression quality.
+    ///
+    /// # Arguments
+    /// * `image_quality` - The image compression quality.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn optimize_file_size(&self, image_quality: i32) -> Result<(), PdfError> {
+        self._optimize_file_size(image_quality)
+    }
+
     /// Repair PDF-document.
     ///
     /// # Errors
@@ -1012,7 +1151,7 @@ impl Document {
         self._add_text_footer(footer)
     }
 
-    /// Flatten PDF-document
+    /// Flatten PDF-document.
     ///
     /// # Errors
     /// Returns `PdfError` if the operation fails.
@@ -1020,7 +1159,23 @@ impl Document {
         self._flatten()
     }
 
-    /// Remove annotations from PDF-document
+    /// Embed fonts a PDF-document.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn embed_fonts(&self) -> Result<(), PdfError> {
+        self._embed_fonts()
+    }
+
+    /// Unembed fonts a PDF-document.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn unembed_fonts(&self) -> Result<(), PdfError> {
+        self._unembed_fonts()
+    }
+
+    /// Remove annotations from PDF-document.
     ///
     /// # Errors
     /// Returns `PdfError` if the operation fails.
@@ -1028,7 +1183,7 @@ impl Document {
         self._remove_annotations()
     }
 
-    /// Remove attachments from PDF-document
+    /// Remove attachments from PDF-document.
     ///
     /// # Errors
     /// Returns `PdfError` if the operation fails.
@@ -1036,7 +1191,7 @@ impl Document {
         self._remove_attachments()
     }
 
-    /// Remove blank pages from PDF-document
+    /// Remove blank pages from PDF-document.
     ///
     /// # Errors
     /// Returns `PdfError` if the operation fails.
@@ -1044,7 +1199,7 @@ impl Document {
         self._remove_blank_pages()
     }
 
-    /// Remove bookmarks from PDF-document
+    /// Remove bookmarks from PDF-document.
     ///
     /// # Errors
     /// Returns `PdfError` if the operation fails.
@@ -1052,7 +1207,7 @@ impl Document {
         self._remove_bookmarks()
     }
 
-    /// Remove hidden text from PDF-document
+    /// Remove hidden text from PDF-document.
     ///
     /// # Errors
     /// Returns `PdfError` if the operation fails.
@@ -1060,7 +1215,7 @@ impl Document {
         self._remove_hidden_text()
     }
 
-    /// Remove images from PDF-document
+    /// Remove images from PDF-document.
     ///
     /// # Errors
     /// Returns `PdfError` if the operation fails.
@@ -1068,7 +1223,7 @@ impl Document {
         self._remove_images()
     }
 
-    /// Remove java scripts from PDF-document
+    /// Remove java scripts from PDF-document.
     ///
     /// # Errors
     /// Returns `PdfError` if the operation fails.
@@ -1076,12 +1231,20 @@ impl Document {
         self._remove_javascripts()
     }
 
-    /// Remove tables from PDF-document
+    /// Remove tables from PDF-document.
     ///
     /// # Errors
     /// Returns `PdfError` if the operation fails.
     pub fn remove_tables(&self) -> Result<(), PdfError> {
         self._remove_tables()
+    }
+
+    /// Remove watermarks from PDF-document.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn remove_watermarks(&self) -> Result<(), PdfError> {
+        self._remove_watermarks()
     }
 
     /// Convert and save the specified page as Jpg-image.
@@ -1346,6 +1509,17 @@ impl Document {
     /// Returns `PdfError` if the operation fails.
     pub fn page_remove_tables(&self, num: i32) -> Result<(), PdfError> {
         self._page_remove_tables(num)
+    }
+
+    /// Remove watermarks in page.
+    ///
+    /// # Arguments
+    /// * `num` - The page number (1-based).
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn page_remove_watermarks(&self, num: i32) -> Result<(), PdfError> {
+        self._page_remove_watermarks(num)
     }
 }
 

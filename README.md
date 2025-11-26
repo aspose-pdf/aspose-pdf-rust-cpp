@@ -18,20 +18,22 @@ Contains unique features for converting PDF to other formats.
     Add, insert, delete, and count pages in a document.
 
 - **Document-level operations**
-  - `optimize`, `optimize_resource`, `grayscale`, `rotate`, `set_background`, `repair`
-    Optimize PDF-document layout and resources, convert to grayscale, rotate pages, set background, and repair corrupted documents.
-  - `replace_text`, `add_page_num`, `add_text_header`, `add_text_footer`, `flatten`
-    Replace text, add page numbers, insert custom text in the header or footer, and flatten PDF-document.
-  - `remove_annotations`, `remove_attachments`, `remove_blank_pages`, `remove_bookmarks`, `remove_hidden_text`, `remove_images`, `remove_tables`, `remove_javascripts`
-    Remove annotations, attachments, blank pages, bookmarks, hidden text, images, tables, and embedded JavaScript code.
+  - `optimize`, `optimize_resource`, `optimize_file_size`, `grayscale`, `flatten`, `rotate`, `set_background`, `repair`
+    Optimize PDF-document layout, size and resources, convert to grayscale, flatten, rotate pages, set background, and repair corrupted documents.
+  - `replace_text`, `add_page_num`, `add_text_header`, `add_text_footer`, `add_watermark`
+    Replace text, add page numbers, insert custom text in the header or footer, and add watermark.
+  - `remove_annotations`, `remove_attachments`, `remove_blank_pages`, `remove_bookmarks`, `remove_hidden_text`, `remove_images`, `remove_tables`, `remove_watermarks`, `remove_javascripts`
+    Remove annotations, attachments, blank pages, bookmarks, hidden text, images, tables, watermark, and embedded JavaScript code.
+  - `embed_fonts`, `unembed_fonts`
+    Embed and unembed fonts a PDF-document.
 
 - **Page-level operations**
-  - `rotate`, `set_size`, `grayscale`, `add_text`
-    Rotate individual pages, set page size, convert pages to grayscale, and add text.
+  - `page_rotate`, `page_set_size`, `page_grayscale`, `page_add_text`, `page_add_watermark`
+    Rotate individual pages, set page size, convert pages to grayscale, add text, and add watermark.
   - `page_replace_text`, `page_add_page_num`, `page_add_text_header`, `page_add_text_footer`
     Replace text on a specific page, add page number to a page, and insert custom text in the header or footer of a page.
-  - `page_remove_annotations`, `page_remove_hidden_text`, `page_remove_images`, `page_remove_tables`
-    Remove annotations, hidden text, images and tables on a specific page.
+  - `page_remove_annotations`, `page_remove_hidden_text`, `page_remove_images`, `page_remove_tables`, `page_remove_watermarks`
+    Remove annotations, hidden text, images, tables and watermarks on a specific page.
 
 - **Content extraction**
   - `extract_text`, `bytes`

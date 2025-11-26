@@ -1,4 +1,4 @@
-use std::ffi::{c_char, c_int, c_void};
+use std::ffi::{c_char, c_double, c_int, c_void};
 extern "C" {
     pub fn PDFDocument_Open(filename: *const c_char, error: *mut *const c_char) -> *const c_void;
     pub fn PDFDocument_New(error: *mut *const c_char) -> *const c_void;
@@ -49,8 +49,15 @@ extern "C" {
     ) -> c_int;
     pub fn PDFDocument_Optimize(pdfdocumentclass: *const c_void, error: *mut *const c_char);
     pub fn PDFDocument_OptimizeResource(pdfdocumentclass: *const c_void, error: *mut *const c_char);
+    pub fn PDFDocument_OptimizeFileSize(
+        pdfdocumentclass: *const c_void,
+        imageQuality: c_int,
+        error: *mut *const c_char,
+    );
     pub fn PDFDocument_Repair(pdfdocumentclass: *const c_void, error: *mut *const c_char);
     pub fn PDFDocument_Grayscale(pdfdocumentclass: *const c_void, error: *mut *const c_char);
+    pub fn PDFDocument_EmbedFonts(pdfdocumentclass: *const c_void, error: *mut *const c_char);
+    pub fn PDFDocument_UnembedFonts(pdfdocumentclass: *const c_void, error: *mut *const c_char);
     pub fn PDFDocument_set_Background(
         pdfdocumentclass: *const c_void,
         r: c_int,
@@ -80,6 +87,19 @@ extern "C" {
         footer: *const c_char,
         error: *mut *const c_char,
     );
+    pub fn PDFDocument_AddWatermark(
+        pdfdocumentclass: *const c_void,
+        text: *const c_char,
+        fontName: *const c_char,
+        fontSize: c_double,
+        foregroundColor: *const c_char,
+        xPosition: c_int,
+        yPosition: c_int,
+        rotation: c_int,
+        isBackground: c_int,
+        opacity: c_double,
+        error: *mut *const c_char,
+    );
     pub fn PDFDocument_Flatten(pdfdocumentclass: *const c_void, error: *mut *const c_char);
     pub fn PDFDocument_RemoveAnnotations(
         pdfdocumentclass: *const c_void,
@@ -98,6 +118,7 @@ extern "C" {
         error: *mut *const c_char,
     );
     pub fn PDFDocument_RemoveTables(pdfdocumentclass: *const c_void, error: *mut *const c_char);
+    pub fn PDFDocument_RemoveWatermarks(pdfdocumentclass: *const c_void, error: *mut *const c_char);
     pub fn PDFDocument_Page_get_Count(
         pdfdocumentclass: *const c_void,
         error: *mut *const c_char,
@@ -310,6 +331,20 @@ extern "C" {
         footer: *const c_char,
         error: *mut *const c_char,
     );
+    pub fn PDFDocument_Page_AddWatermark(
+        pdfdocumentclass: *const c_void,
+        num: c_int,
+        text: *const c_char,
+        fontName: *const c_char,
+        fontSize: c_double,
+        foregroundColor: *const c_char,
+        xPosition: c_int,
+        yPosition: c_int,
+        rotation: c_int,
+        isBackground: c_int,
+        opacity: c_double,
+        error: *mut *const c_char,
+    );
     pub fn PDFDocument_Page_RemoveAnnotations(
         pdfdocumentclass: *const c_void,
         num: c_int,
@@ -326,6 +361,11 @@ extern "C" {
         error: *mut *const c_char,
     );
     pub fn PDFDocument_Page_RemoveTables(
+        pdfdocumentclass: *const c_void,
+        num: c_int,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_Page_RemoveWatermarks(
         pdfdocumentclass: *const c_void,
         num: c_int,
         error: *mut *const c_char,

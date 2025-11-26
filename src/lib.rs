@@ -284,7 +284,14 @@ mod test {
         )> = vec![
             ("optimize", Box::new(|doc| doc.optimize())),
             ("optimize_resource", Box::new(|doc| doc.optimize_resource())),
+            (
+                "optimize_file_size",
+                Box::new(|doc| doc.optimize_file_size(20)),
+            ),
             ("grayscale", Box::new(|doc| doc.grayscale())),
+            ("flatten", Box::new(|doc| doc.flatten())),
+            ("embed_fonts", Box::new(|doc| doc.embed_fonts())),
+            ("unembed_fonts", Box::new(|doc| doc.unembed_fonts())),
             (
                 "rotate",
                 Box::new(|doc| doc.rotate(crate::enums::Rotation::On90)),
@@ -306,7 +313,22 @@ mod test {
                 "add_text_footer",
                 Box::new(|doc| doc.add_text_footer("FOOTER")),
             ),
-            ("flatten", Box::new(|doc| doc.flatten())),
+            (
+                "add_watermark",
+                Box::new(|doc| {
+                    doc.add_watermark(
+                        "WATERMARK",
+                        "Arial",
+                        16.0,
+                        "#010101",
+                        100,
+                        100,
+                        45,
+                        true,
+                        0.5,
+                    )
+                }),
+            ),
             (
                 "remove_annotations",
                 Box::new(|doc| doc.remove_annotations()),
@@ -330,6 +352,7 @@ mod test {
                 Box::new(|doc| doc.remove_javascripts()),
             ),
             ("remove_tables", Box::new(|doc| doc.remove_tables())),
+            ("remove_watermarks", Box::new(|doc| doc.remove_watermarks())),
             (
                 "page_rotate",
                 Box::new(|doc| doc.page_rotate(1, crate::enums::Rotation::On180)),
@@ -360,6 +383,23 @@ mod test {
                 Box::new(|doc| doc.page_add_text_footer(1, "FOOTER")),
             ),
             (
+                "page_add_watermark",
+                Box::new(|doc| {
+                    doc.page_add_watermark(
+                        1,
+                        "WATERMARK",
+                        "Arial",
+                        16.0,
+                        "#010101",
+                        100,
+                        100,
+                        45,
+                        true,
+                        0.5,
+                    )
+                }),
+            ),
+            (
                 "page_remove_annotations",
                 Box::new(|doc| doc.page_remove_annotations(1)),
             ),
@@ -374,6 +414,10 @@ mod test {
             (
                 "page_remove_tables",
                 Box::new(|doc| doc.page_remove_tables(1)),
+            ),
+            (
+                "page_remove_watermarks",
+                Box::new(|doc| doc.page_remove_watermarks(1)),
             ),
         ];
 

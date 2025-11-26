@@ -1,6 +1,6 @@
 [package]
 name = "asposepdf"
-version = "1.25.10"
+version = "1.25.11"
 edition = "2021"
 license = "MIT"
 description = "Aspose.PDF for Rust via C++ is a powerful toolkit that allows developers to manipulate PDF files directly and helps do various tasks for PDF. Contains unique features for converting PDF to other formats."
