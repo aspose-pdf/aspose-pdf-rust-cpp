@@ -3,18 +3,22 @@ mod document_gen_fn;
 mod enums;
 mod errors;
 mod extern_c;
+mod permissions;
 mod product_info;
 mod utils;
-pub use crate::document::*;
-//pub use crate::{document::*, enums::*, errors::*};
+
+pub use document::Document;
+pub use enums::{CryptoAlgorithm, PageSize, Rotation};
+pub use errors::PdfError;
+pub use permissions::Permissions;
+pub use product_info::ProductInfo;
 
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::error::Error;
 
     #[test]
-    fn pdf_about() -> Result<(), Box<dyn Error>> {
+    fn pdf_about() -> Result<(), Box<dyn std::error::Error>> {
         let pdf = Document::new()?;
         let info = pdf.about()?;
         assert!(!info.product.is_empty(), "product is empty");
@@ -30,7 +34,7 @@ mod test {
     }
 
     #[test]
-    fn pdf_new_and_save() -> Result<(), Box<dyn Error>> {
+    fn pdf_new_and_save() -> Result<(), Box<dyn std::error::Error>> {
         let pdf = Document::new()?;
         let pdf_name = format!(
             "{}/test_pdf_new_and_save.pdf",
@@ -142,7 +146,7 @@ mod test {
     }
 
     #[test]
-    fn pdf_split_document() -> Result<(), Box<dyn Error>> {
+    fn pdf_split_document() -> Result<(), Box<dyn std::error::Error>> {
         let pdf = Document::new()?;
         for _ in 0..4 {
             pdf.page_add()?;
@@ -165,7 +169,7 @@ mod test {
     }
 
     #[test]
-    fn pdf_split() -> Result<(), Box<dyn Error>> {
+    fn pdf_split() -> Result<(), Box<dyn std::error::Error>> {
         let pdf = Document::new()?;
         for _ in 0..4 {
             pdf.page_add()?;
@@ -188,7 +192,7 @@ mod test {
     }
 
     #[test]
-    fn pdf_split_at_page() -> Result<(), Box<dyn Error>> {
+    fn pdf_split_at_page() -> Result<(), Box<dyn std::error::Error>> {
         let pdf = Document::new()?;
         for _ in 0..4 {
             pdf.page_add()?;
@@ -206,7 +210,7 @@ mod test {
     }
 
     #[test]
-    fn pdf_split_at() -> Result<(), Box<dyn Error>> {
+    fn pdf_split_at() -> Result<(), Box<dyn std::error::Error>> {
         let pdf = Document::new()?;
         for _ in 0..4 {
             pdf.page_add()?;
@@ -224,7 +228,7 @@ mod test {
     }
 
     #[test]
-    fn pdf_pages_operations() -> Result<(), Box<dyn Error>> {
+    fn pdf_pages_operations() -> Result<(), Box<dyn std::error::Error>> {
         let pdf = Document::new()?;
 
         // Add page
@@ -630,6 +634,183 @@ mod test {
 
         // Check that only one page remains
         assert_eq!(doc.page_count()?, 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn pdf_encrypt_decrypt() -> Result<(), Box<dyn std::error::Error>> {
+        // Path to temporary file
+        let filename = format!("{}/pdf_encrypt_decrypt.pdf", std::env::temp_dir().display());
+
+        // Create new PDF
+        let pdf = Document::new()?;
+        pdf.save_as(&filename)?;
+
+        // Encryption settings
+        let user_pass = "user123";
+        let owner_pass = "owner123";
+        let permissions =
+            Permissions::PRINT_DOCUMENT | Permissions::MODIFY_CONTENT | Permissions::FILL_FORM;
+
+        // Encrypt
+        pdf.encrypt(
+            user_pass,
+            owner_pass,
+            permissions,
+            CryptoAlgorithm::AESx128,
+            true,
+        )?;
+
+        pdf.save_as(&filename)?;
+
+        // Opening without password must fail
+        let try_open = Document::open(&filename);
+        assert!(
+            try_open.is_err(),
+            "Opening encrypted PDF without password must fail"
+        );
+
+        // Opening with password must succeed
+        let pdf2 = Document::open_with_password(&filename, owner_pass)?;
+        pdf2.decrypt()?;
+        pdf2.save_as(&filename)?;
+
+        // Now opening without password must succeed
+        Document::open(&filename)?;
+
+        Ok(())
+    }
+
+    #[test]
+    fn pdf_permissions() -> Result<(), Box<dyn std::error::Error>> {
+        // Path to temporary file
+        let filename = format!("{}/pdf_permissions.pdf", std::env::temp_dir().display());
+
+        let pdf = Document::new()?;
+        pdf.save_as(&filename)?;
+
+        let user_pass = "user123";
+        let owner_pass = "owner123";
+
+        let expected = Permissions::EXTRACT_CONTENT
+            | Permissions::MODIFY_TEXT_ANNOTATIONS
+            | Permissions::PRINTING_QUALITY;
+
+        //Set permissions
+        pdf.set_permissions(user_pass, owner_pass, expected)?;
+
+        pdf.save_as(&filename)?;
+
+        // Open with password
+        let pdf2 = Document::open_with_password(&filename, user_pass)?;
+
+        //Get permissions
+        let perms = pdf2.get_permissions()?;
+
+        assert_eq!(perms, expected);
+
+        Ok(())
+    }
+
+    #[test]
+    fn pdf_open_with_password_wrong_pass() -> Result<(), Box<dyn std::error::Error>> {
+        // Path to temporary file
+        let filename = format!("{}/pdf_permissions.pdf", std::env::temp_dir().display());
+
+        let user_pass = "user123";
+        let owner_pass = "owner123";
+
+        let pdf = Document::new()?;
+
+        pdf.encrypt(
+            user_pass,
+            owner_pass,
+            Permissions::PRINT_DOCUMENT,
+            CryptoAlgorithm::AESx128,
+            false,
+        )?;
+
+        pdf.save_as(&filename)?;
+
+        let bad = Document::open_with_password(&filename, "badpass");
+
+        assert!(
+            bad.is_err(),
+            "open_with_password() must fail on wrong password"
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn pdf_permissions_combination() -> Result<(), Box<dyn std::error::Error>> {
+        let all = Permissions::PRINT_DOCUMENT
+            | Permissions::MODIFY_CONTENT
+            | Permissions::EXTRACT_CONTENT
+            | Permissions::MODIFY_TEXT_ANNOTATIONS
+            | Permissions::FILL_FORM
+            | Permissions::EXTRACT_CONTENT_WITH_DISABILITIES
+            | Permissions::ASSEMBLE_DOCUMENT
+            | Permissions::PRINTING_QUALITY;
+        let user_pass = "user123";
+        let owner_pass = "owner123";
+
+        let pdf = Document::new()?;
+
+        pdf.set_permissions(user_pass, owner_pass, all)?;
+
+        let got = pdf.get_permissions()?;
+
+        assert_eq!(got, all);
+
+        Ok(())
+    }
+
+    #[test]
+    fn pdf_encrypt_algorithms() -> Result<(), Box<dyn std::error::Error>> {
+        // Path to temporary file
+        let filename = format!("{}/pdf_cryptoall.pdf", std::env::temp_dir().display());
+
+        let user_pass = "user123";
+        let owner_pass = "owner123";
+
+        let tests = [
+            (CryptoAlgorithm::RC4x40, false),
+            (CryptoAlgorithm::RC4x128, false),
+            (CryptoAlgorithm::AESx128, false),
+            (CryptoAlgorithm::AESx128, true),
+            (CryptoAlgorithm::AESx256, false),
+            (CryptoAlgorithm::AESx256, true),
+        ];
+
+        let base = Document::new()?;
+        base.save_as(&filename)?;
+
+        for (algorithm, use_pdf20) in tests {
+            let pdf = Document::open(&filename)?;
+
+            // Encrypt
+            pdf.encrypt(
+                user_pass,
+                owner_pass,
+                Permissions::PRINT_DOCUMENT,
+                algorithm,
+                use_pdf20,
+            )?;
+
+            let filename_out = format!(
+                "{}/pdf_cryptoall_{:?}_{:?}.pdf",
+                std::env::temp_dir().display(),
+                algorithm,
+                use_pdf20
+            );
+
+            pdf.save_as(&filename_out)?;
+
+            // Open with password
+            Document::open_with_password(&filename_out, user_pass)?;
+        }
 
         Ok(())
     }

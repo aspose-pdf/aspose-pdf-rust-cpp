@@ -43,3 +43,17 @@ pub enum PageSize {
     /// P11x17 size.
     P11x17 = 11,
 }
+
+/// An enumeration of possible crypto algorithms.
+#[derive(Debug, Clone, Copy)]
+#[repr(C)]
+pub enum CryptoAlgorithm {
+    /// RC4 with key length 40.
+    RC4x40 = 0,
+    /// RC4 with key length 128.
+    RC4x128 = 1,
+    /// AES with key length 128.
+    AESx128 = 2,
+    /// AES with key length 256.
+    AESx256 = 3,
+}

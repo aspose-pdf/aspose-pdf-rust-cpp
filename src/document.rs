@@ -2,10 +2,11 @@
 use serde_json;
 use std::ffi::{c_char, c_uchar, c_void, CStr, CString};
 
-pub use super::enums::*;
-pub use super::errors::*;
-use super::extern_c::*;
-pub use super::product_info::*;
+use crate::enums::{CryptoAlgorithm, PageSize, Rotation};
+use crate::errors::PdfError;
+use crate::extern_c::*;
+use crate::permissions::Permissions;
+use crate::product_info::ProductInfo;
 
 use crate::debug_println;
 use crate::generate_fn;
@@ -53,6 +54,39 @@ impl Document {
         let error_str = Self::get_error(&mut error);
         if doctmp.pdfdocumentclass.is_null() {
             debug_println!("error Document::open({filename}): {error_str:?}");
+            Err(PdfError::CoreExceptionError(error_str))
+        } else {
+            Ok(doctmp)
+        }
+    }
+
+    /// Open a password-protected PDF-document.
+    ///
+    /// # Arguments
+    /// * `filename` - Path to the PDF-document to open.
+    /// * `password` - User/owner password of the password-protected PDF-document.
+    ///
+    /// # Returns
+    /// Returns `Ok(Self)` with the opened PDF-document instance, or `Err(PdfError)` if opening fails.
+    pub fn open_with_password(filename: &str, password: &str) -> Result<Self, PdfError> {
+        debug_println!("call Document::open_with_password({filename:?})");
+        let filename_c_string = CString::new(filename).unwrap();
+        let filename_c_char_ptr: *const c_char = filename_c_string.as_ptr();
+        let password_c_string = CString::new(password).unwrap();
+        let password_c_char_ptr: *const c_char = password_c_string.as_ptr();
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        let doctmp = Document {
+            pdfdocumentclass: unsafe {
+                PDFDocument_Open_With_Password(
+                    filename_c_char_ptr,
+                    password_c_char_ptr,
+                    error.as_mut_ptr(),
+                )
+            },
+        };
+        let error_str = Self::get_error(&mut error);
+        if doctmp.pdfdocumentclass.is_null() {
+            debug_println!("error Document::open_with_password({filename}): {error_str:?}");
             Err(PdfError::CoreExceptionError(error_str))
         } else {
             Ok(doctmp)
@@ -821,6 +855,8 @@ impl Document {
     generate_fn!(_remove_tables, PDFDocument_RemoveTables);
     generate_fn!(_remove_watermarks, PDFDocument_RemoveWatermarks);
 
+    generate_fn!(_decrypt, PDFDocument_Decrypt);
+
     generate_fn!(_page_to_jpg, PDFDocument_Page_to_Jpg, num: i32, resolution_dpi: i32, filename: &str);
     generate_fn!(_page_to_png, PDFDocument_Page_to_Png, num: i32, resolution_dpi: i32, filename: &str);
     generate_fn!(_page_to_bmp, PDFDocument_Page_to_Bmp, num: i32, resolution_dpi: i32, filename: &str);
@@ -1245,6 +1281,120 @@ impl Document {
     /// Returns `PdfError` if the operation fails.
     pub fn remove_watermarks(&self) -> Result<(), PdfError> {
         self._remove_watermarks()
+    }
+
+    /// Encrypt PDF-document.
+    ///
+    /// # Arguments
+    /// * `user_password` - The user password.
+    /// * `owner_password` - The owner password.
+    /// * `permissions` - The allowed permissions (bitflags `Permissions`).
+    /// * `crypto_algorithm` - The encryption algorithm (`CryptoAlgorithm` enum).
+    /// * `use_pdf_20` - Whether to use PDF 2.0 encryption.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn encrypt(
+        &self,
+        user_password: &str,
+        owner_password: &str,
+        permissions: Permissions,
+        crypto_algorithm: CryptoAlgorithm,
+        use_pdf_20: bool,
+    ) -> Result<(), PdfError> {
+        debug_println!(
+            "call Document::encrypt({permissions:?}, {crypto_algorithm:?}, {use_pdf_20:?})"
+        );
+        let c_string_user_password = std::ffi::CString::new(user_password).unwrap();
+        let c_char_ptr_user_password = c_string_user_password.as_ptr();
+        let c_string_owner_password = std::ffi::CString::new(owner_password).unwrap();
+        let c_char_ptr_owner_password = c_string_owner_password.as_ptr();
+        let _use_pdf_20: i32 = if use_pdf_20 { 1 } else { 0 };
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        unsafe {
+            PDFDocument_Encrypt(
+                self.pdfdocumentclass,
+                c_char_ptr_user_password as *const c_char,
+                c_char_ptr_owner_password as *const c_char,
+                permissions.bits(),
+                crypto_algorithm as i32,
+                _use_pdf_20,
+                error.as_mut_ptr(),
+            )
+        };
+        let error_str = Self::get_error(&mut error);
+        if error_str.is_empty() {
+            Ok(())
+        } else {
+            debug_println!("error Document::encrypt({permissions:?}, {crypto_algorithm:?}, {use_pdf_20:?}): {error_str:?})");
+            Err(PdfError::CoreExceptionError(error_str))
+        }
+    }
+
+    /// Decrypt PDF-document.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn decrypt(&self) -> Result<(), PdfError> {
+        self._decrypt()
+    }
+
+    /// Set permissions for PDF-document.
+    ///
+    /// # Arguments
+    /// * `user_password` - The user password.
+    /// * `owner_password` - The owner password.
+    /// * `permissions` - The allowed permissions (bitflags `Permissions`).
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn set_permissions(
+        &self,
+        user_password: &str,
+        owner_password: &str,
+        permissions: Permissions,
+    ) -> Result<(), PdfError> {
+        debug_println!("call Document::set_permissions({permissions:?})");
+        let c_string_user_password = std::ffi::CString::new(user_password).unwrap();
+        let c_char_ptr_user_password = c_string_user_password.as_ptr();
+        let c_string_owner_password = std::ffi::CString::new(owner_password).unwrap();
+        let c_char_ptr_owner_password = c_string_owner_password.as_ptr();
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        unsafe {
+            PDFDocument_set_Permissions(
+                self.pdfdocumentclass,
+                c_char_ptr_user_password as *const c_char,
+                c_char_ptr_owner_password as *const c_char,
+                permissions.bits(),
+                error.as_mut_ptr(),
+            )
+        };
+        let error_str = Self::get_error(&mut error);
+        if error_str.is_empty() {
+            Ok(())
+        } else {
+            debug_println!("error Document::set_permissions({permissions:?})");
+            Err(PdfError::CoreExceptionError(error_str))
+        }
+    }
+
+    /// Get current permissions of PDF-document.
+    ///
+    /// # Returns
+    /// * `Ok(Permissions)` - The bitmask of permissions.
+    /// * `Err(PdfError)` - If the operation fails.
+    pub fn get_permissions(&self) -> Result<Permissions, PdfError> {
+        debug_println!("call Document::get_permissions()");
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        let permissions_raw: i32 =
+            unsafe { PDFDocument_get_Permissions(self.pdfdocumentclass, error.as_mut_ptr()) };
+        let error_str = Self::get_error(&mut error);
+        if error_str.is_empty() {
+            Ok(Permissions::from(permissions_raw))
+        } else {
+            debug_println!("error Document::get_permissions(): {error_str:?}");
+            Err(PdfError::CoreExceptionError(error_str))
+        }
     }
 
     /// Convert and save the specified page as Jpg-image.

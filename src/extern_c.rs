@@ -1,6 +1,11 @@
 use std::ffi::{c_char, c_double, c_int, c_void};
 extern "C" {
     pub fn PDFDocument_Open(filename: *const c_char, error: *mut *const c_char) -> *const c_void;
+    pub fn PDFDocument_Open_With_Password(
+        filename: *const c_char,
+        password: *const c_char,
+        error: *mut *const c_char,
+    ) -> *const c_void;
     pub fn PDFDocument_New(error: *mut *const c_char) -> *const c_void;
     pub fn PDFDocument_Release(pdfdocumentclass: *const c_void, error: *mut *const c_char);
     pub fn PDFDocument_About(
@@ -35,6 +40,27 @@ extern "C" {
         pagerange: *const c_char,
         error: *mut *const c_char,
     );
+    pub fn PDFDocument_Encrypt(
+        pdfdocumentclass: *const c_void,
+        userPassword: *const c_char,
+        ownerPassword: *const c_char,
+        permissions: c_int,
+        cryptoAlgorithm: c_int,
+        usePdf20: c_int,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_Decrypt(pdfdocumentclass: *const c_void, error: *mut *const c_char);
+    pub fn PDFDocument_set_Permissions(
+        pdfdocumentclass: *const c_void,
+        userPassword: *const c_char,
+        ownerPassword: *const c_char,
+        permissions: c_int,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_get_Permissions(
+        pdfdocumentclass: *const c_void,
+        error: *mut *const c_char,
+    ) -> c_int;
     pub fn PDFDocument_ExtractText(
         pdfdocumentclass: *const c_void,
         error: *mut *const c_char,

@@ -46,10 +46,13 @@ Contains unique features for converting PDF to other formats.
 - **Microsoft Office:**
   - `DOC`, `DOCX`, `XLSX`, `PPTX`
   - `DOCX` with Enhanced Recognition Mode (fully editable tables and paragraphs)
+
 - **Images:**
   - `JPEG`, `PNG`, `BMP`, `TIFF`
+
 - **PDFs:**
   - `N-UP`, `BOOKLET`
+
 - **Others:**
   - `EPUB`, `DICOM`, `SVG`, `SVG(ZIP)`, `XPS`, `TEX`, `TXT`, `MARKDOWN`
 
@@ -68,6 +71,20 @@ Contains unique features for converting PDF to other formats.
 - **Page statistics:**
   - `page_word_count`, `page_character_count`, `page_is_blank`
     Return the number of words and characters on a specific page and check if a page is blank.
+
+### PDF secure
+
+- **Open password-protected:**
+  - `open_with_password`
+    Open a password-protected PDF-document.
+
+- **Encrypt/decrypt document:**
+  - `encrypt`, `decrypt`
+    Encrypt and Decrypt PDF-document.
+
+- **Configure access permissions:**
+  - `set_permissions`, `get_permissions`
+    Set permissions for PDF-document and get current permissions of PDF-document.
 
 ## Platforms
 

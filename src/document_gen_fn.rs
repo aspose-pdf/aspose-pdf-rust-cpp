@@ -87,6 +87,46 @@ macro_rules! generate_fn {
             }
         }
     };
+    // Case with '&str', '&str' and 'i32' parameters
+    ($fn_name:ident, $unsafe_fn:ident, $param1:ident: &str, $param2:ident: &str, $param3:ident: i32) => {
+        fn $fn_name(&self, $param1: &str, $param2: &str, $param3: i32) -> Result<(), PdfError> {
+            debug_println!(
+                "Calling Document::{}({:?}, {:?}, {:?})",
+                stringify!($fn_name),
+                $param1,
+                $param2,
+                $param3
+            );
+            let c_string1 = std::ffi::CString::new($param1).unwrap();
+            let c_char_ptr1 = c_string1.as_ptr();
+            let c_string2 = std::ffi::CString::new($param2).unwrap();
+            let c_char_ptr2 = c_string2.as_ptr();
+            let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+            unsafe {
+                $unsafe_fn(
+                    self.pdfdocumentclass,
+                    c_char_ptr1 as *const c_char,
+                    c_char_ptr2 as *const c_char,
+                    $param3,
+                    error.as_mut_ptr(),
+                );
+            }
+            let error_str = Self::get_error(&mut error);
+            if error_str.is_empty() {
+                Ok(())
+            } else {
+                debug_println!(
+                    "Error in Document::{}({:?}, {:?}, {:?}): {:?}",
+                    stringify!($fn_name),
+                    $param1,
+                    $param2,
+                    $param3,
+                    error_str
+                );
+                Err(PdfError::CoreExceptionError(error_str))
+            }
+        }
+    };
     // Case with 'i32', '&str' and '&str' parameters
     ($fn_name:ident, $unsafe_fn:ident, $param1:ident: i32, $param:ident: &str, $param2:ident: &str) => {
         fn $fn_name(&self, $param1: i32, $param: &str, $param2: &str) -> Result<(), PdfError> {
