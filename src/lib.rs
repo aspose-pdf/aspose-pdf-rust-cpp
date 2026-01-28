@@ -358,6 +358,14 @@ mod test {
             ("remove_tables", Box::new(|doc| doc.remove_tables())),
             ("remove_watermarks", Box::new(|doc| doc.remove_watermarks())),
             (
+                "remove_text_headers",
+                Box::new(|doc| doc.remove_text_headers()),
+            ),
+            (
+                "remove_text_footers",
+                Box::new(|doc| doc.remove_text_footers()),
+            ),
+            (
                 "page_rotate",
                 Box::new(|doc| doc.page_rotate(1, crate::enums::Rotation::On180)),
             ),
@@ -422,6 +430,14 @@ mod test {
             (
                 "page_remove_watermarks",
                 Box::new(|doc| doc.page_remove_watermarks(1)),
+            ),
+            (
+                "page_remove_text_headers",
+                Box::new(|doc| doc.page_remove_text_headers(1)),
+            ),
+            (
+                "page_remove_text_footers",
+                Box::new(|doc| doc.page_remove_text_footers(1)),
             ),
         ];
 

@@ -145,6 +145,14 @@ extern "C" {
     );
     pub fn PDFDocument_RemoveTables(pdfdocumentclass: *const c_void, error: *mut *const c_char);
     pub fn PDFDocument_RemoveWatermarks(pdfdocumentclass: *const c_void, error: *mut *const c_char);
+    pub fn PDFDocument_RemoveTextHeaders(
+        pdfdocumentclass: *const c_void,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_RemoveTextFooters(
+        pdfdocumentclass: *const c_void,
+        error: *mut *const c_char,
+    );
     pub fn PDFDocument_Page_get_Count(
         pdfdocumentclass: *const c_void,
         error: *mut *const c_char,
@@ -392,6 +400,16 @@ extern "C" {
         error: *mut *const c_char,
     );
     pub fn PDFDocument_Page_RemoveWatermarks(
+        pdfdocumentclass: *const c_void,
+        num: c_int,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_Page_RemoveTextHeaders(
+        pdfdocumentclass: *const c_void,
+        num: c_int,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_Page_RemoveTextFooters(
         pdfdocumentclass: *const c_void,
         num: c_int,
         error: *mut *const c_char,

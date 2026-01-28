@@ -854,6 +854,8 @@ impl Document {
     generate_fn!(_remove_javascripts, PDFDocument_RemoveJavaScripts);
     generate_fn!(_remove_tables, PDFDocument_RemoveTables);
     generate_fn!(_remove_watermarks, PDFDocument_RemoveWatermarks);
+    generate_fn!(_remove_text_headers, PDFDocument_RemoveTextHeaders);
+    generate_fn!(_remove_text_footers, PDFDocument_RemoveTextFooters);
 
     generate_fn!(_decrypt, PDFDocument_Decrypt);
 
@@ -881,6 +883,8 @@ impl Document {
     generate_fn!(_page_remove_images, PDFDocument_Page_RemoveImages, num: i32);
     generate_fn!(_page_remove_tables, PDFDocument_Page_RemoveTables, num: i32);
     generate_fn!(_page_remove_watermarks, PDFDocument_Page_RemoveWatermarks, num: i32);
+    generate_fn!(_page_remove_text_headers, PDFDocument_Page_RemoveTextHeaders, num: i32);
+    generate_fn!(_page_remove_text_footers, PDFDocument_Page_RemoveTextFooters, num: i32);
 
     /// Save the previously opened PDF-document.
     ///
@@ -1283,6 +1287,22 @@ impl Document {
         self._remove_watermarks()
     }
 
+    /// Remove text headers from PDF-document.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn remove_text_headers(&self) -> Result<(), PdfError> {
+        self._remove_text_headers()
+    }
+
+    /// Remove text footers from PDF-document.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn remove_text_footers(&self) -> Result<(), PdfError> {
+        self._remove_text_footers()
+    }
+
     /// Encrypt PDF-document.
     ///
     /// # Arguments
@@ -1670,6 +1690,28 @@ impl Document {
     /// Returns `PdfError` if the operation fails.
     pub fn page_remove_watermarks(&self, num: i32) -> Result<(), PdfError> {
         self._page_remove_watermarks(num)
+    }
+
+    /// Remove text headers in page.
+    ///
+    /// # Arguments
+    /// * `num` - The page number (1-based).
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn page_remove_text_headers(&self, num: i32) -> Result<(), PdfError> {
+        self._page_remove_text_headers(num)
+    }
+
+    /// Remove text footers in page.
+    ///
+    /// # Arguments
+    /// * `num` - The page number (1-based).
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn page_remove_text_footers(&self, num: i32) -> Result<(), PdfError> {
+        self._page_remove_text_footers(num)
     }
 }
 
