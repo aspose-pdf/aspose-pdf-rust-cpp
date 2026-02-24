@@ -296,6 +296,7 @@ mod test {
             ("flatten", Box::new(|doc| doc.flatten())),
             ("embed_fonts", Box::new(|doc| doc.embed_fonts())),
             ("unembed_fonts", Box::new(|doc| doc.unembed_fonts())),
+            ("crop", Box::new(|doc| doc.crop(10.5))),
             (
                 "rotate",
                 Box::new(|doc| doc.rotate(crate::enums::Rotation::On90)),
@@ -365,6 +366,7 @@ mod test {
                 "remove_text_footers",
                 Box::new(|doc| doc.remove_text_footers()),
             ),
+            ("page_crop", Box::new(|doc| doc.page_crop(1, 0.0))),
             (
                 "page_rotate",
                 Box::new(|doc| doc.page_rotate(1, crate::enums::Rotation::On180)),

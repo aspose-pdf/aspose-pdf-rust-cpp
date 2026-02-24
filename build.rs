@@ -150,5 +150,16 @@ fn main() -> Result<(), Box<dyn Error>> {
         let _ = os::windows::fs::symlink_file(&lib_path, &dst_lib);
     }
 
+    if !dst_lib.exists() {
+        let _ = fs::copy(&lib_path, &dst_lib);
+    }
+
+    if !dst_lib.exists() {
+        println!(
+        "cargo:warning=Runtime library {} not found at expected location. It might still be found via system PATH or rpath.",
+        lib_name
+    );
+    }
+
     Ok(())
 }

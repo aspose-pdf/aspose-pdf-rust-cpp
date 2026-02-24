@@ -518,6 +518,60 @@ impl Document {
         }
     }
 
+    /// Crop pages of a PDF-document.
+    ///
+    /// # Arguments
+    /// * `margin` - The page margin
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn crop(&self, margin: f64) -> Result<(), PdfError> {
+        debug_println!("call Document::crop({margin:?})");
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        unsafe {
+            PDFDocument_Crop(
+                self.pdfdocumentclass,
+                margin.clone() as f64,
+                error.as_mut_ptr(),
+            )
+        };
+        let error_str = Self::get_error(&mut error);
+        if error_str.is_empty() {
+            Ok(())
+        } else {
+            debug_println!("error Document::crop({margin:?}): {error_str:?}");
+            Err(PdfError::CoreExceptionError(error_str))
+        }
+    }
+
+    /// Crop a page.
+    ///
+    /// # Arguments
+    /// * `num` - The page number (1-based).
+    /// * `margin` - The page margin
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn page_crop(&self, num: i32, margin: f64) -> Result<(), PdfError> {
+        debug_println!("call Document::page_crop({margin:?})");
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        unsafe {
+            PDFDocument_Page_Crop(
+                self.pdfdocumentclass,
+                num,
+                margin.clone() as f64,
+                error.as_mut_ptr(),
+            )
+        };
+        let error_str = Self::get_error(&mut error);
+        if error_str.is_empty() {
+            Ok(())
+        } else {
+            debug_println!("error Document::page_crop({margin:?}): {error_str:?}");
+            Err(PdfError::CoreExceptionError(error_str))
+        }
+    }
+
     /// Set the size of a page in the PDF-document.
     ///
     /// # Arguments

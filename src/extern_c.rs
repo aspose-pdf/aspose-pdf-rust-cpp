@@ -96,6 +96,11 @@ extern "C" {
         rotation: c_int,
         error: *mut *const c_char,
     );
+    pub fn PDFDocument_Crop(
+        pdfdocumentclass: *const c_void,
+        margin: c_double,
+        error: *mut *const c_char,
+    );
     pub fn PDFDocument_ReplaceText(
         pdfdocumentclass: *const c_void,
         findText: *const c_char,
@@ -333,6 +338,12 @@ extern "C" {
         pdfdocumentclass: *const c_void,
         num: c_int,
         rotation: c_int,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_Page_Crop(
+        pdfdocumentclass: *const c_void,
+        num: c_int,
+        margin: c_double,
         error: *mut *const c_char,
     );
     pub fn PDFDocument_Page_set_Size(
