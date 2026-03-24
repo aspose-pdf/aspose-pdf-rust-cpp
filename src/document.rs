@@ -895,6 +895,7 @@ impl Document {
     generate_fn!(_unembed_fonts, PDFDocument_UnembedFonts);
 
     generate_fn!(_replace_text, PDFDocument_ReplaceText, find_text: &str, replace_text: &str);
+    generate_fn!(_replace_font, PDFDocument_ReplaceFont, find_font_name: &str, replace_font_name: &str);
     generate_fn!(_add_page_num, PDFDocument_AddPageNum);
     generate_fn!(_add_text_header, PDFDocument_AddTextHeader, header: &str);
     generate_fn!(_add_text_footer, PDFDocument_AddTextFooter, footer: &str);
@@ -928,6 +929,7 @@ impl Document {
     generate_fn!(_page_add_text, PDFDocument_Page_AddText, num: i32, add_text: &str);
 
     generate_fn!(_page_replace_text, PDFDocument_Page_ReplaceText, num: i32, find_text: &str, replace_text: &str);
+    generate_fn!(_page_replace_font, PDFDocument_Page_ReplaceFont, num: i32, find_font_name: &str, replace_font_name: &str);
     generate_fn!(_page_add_page_num, PDFDocument_Page_AddPageNum, num: i32);
     generate_fn!(_page_add_text_header, PDFDocument_Page_AddTextHeader, num: i32, header: &str);
     generate_fn!(_page_add_text_footer, PDFDocument_Page_AddTextFooter, num: i32, footer: &str);
@@ -1213,6 +1215,22 @@ impl Document {
     /// Returns `PdfError` if the operation fails.
     pub fn replace_text(&self, find_text: &str, replace_text: &str) -> Result<(), PdfError> {
         self._replace_text(find_text, replace_text)
+    }
+
+    /// Replace font in a PDF-document
+    ///
+    /// # Arguments
+    /// * `find_font_name` - The font name to search.
+    /// * `replace_font_name` - The font name to replace.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn replace_font(
+        &self,
+        find_font_name: &str,
+        replace_font_name: &str,
+    ) -> Result<(), PdfError> {
+        self._replace_font(find_font_name, replace_font_name)
     }
 
     /// Add page number to a PDF-document.
@@ -1654,6 +1672,24 @@ impl Document {
         replace_text: &str,
     ) -> Result<(), PdfError> {
         self._page_replace_text(num, find_text, replace_text)
+    }
+
+    /// Replaces font in page.
+    ///
+    /// # Arguments
+    /// * `num` - The page number (1-based).
+    /// * `find_font_name` - The font name to search.
+    /// * `replace_font_name` - The font name to replace.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn page_replace_font(
+        &self,
+        num: i32,
+        find_font_name: &str,
+        replace_font_name: &str,
+    ) -> Result<(), PdfError> {
+        self._page_replace_font(num, find_font_name, replace_font_name)
     }
 
     /// Add page number on page.

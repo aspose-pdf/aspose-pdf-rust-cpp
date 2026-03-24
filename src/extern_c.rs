@@ -107,6 +107,12 @@ extern "C" {
         replaceText: *const c_char,
         error: *mut *const c_char,
     );
+    pub fn PDFDocument_ReplaceFont(
+        pdfdocumentclass: *const c_void,
+        findFontName: *const c_char,
+        replaceFontName: *const c_char,
+        error: *mut *const c_char,
+    );
     pub fn PDFDocument_AddPageNum(pdfdocumentclass: *const c_void, error: *mut *const c_char);
     pub fn PDFDocument_AddTextHeader(
         pdfdocumentclass: *const c_void,
@@ -357,6 +363,13 @@ extern "C" {
         num: c_int,
         findText: *const c_char,
         replaceText: *const c_char,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_Page_ReplaceFont(
+        pdfdocumentclass: *const c_void,
+        num: c_int,
+        findFontName: *const c_char,
+        replaceFontName: *const c_char,
         error: *mut *const c_char,
     );
     pub fn PDFDocument_Page_AddPageNum(

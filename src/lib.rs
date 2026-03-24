@@ -309,6 +309,10 @@ mod test {
                 "replace_text",
                 Box::new(|doc| doc.replace_text("PDF", "TXT")),
             ),
+            (
+                "replace_font",
+                Box::new(|doc| doc.replace_font("Helvetica", "Times")),
+            ),
             ("add_page_num", Box::new(|doc| doc.add_page_num())),
             (
                 "add_text_header",
@@ -383,6 +387,10 @@ mod test {
             (
                 "page_replace_text",
                 Box::new(|doc| doc.page_replace_text(1, "PDF", "TXT")),
+            ),
+            (
+                "page_replace_font",
+                Box::new(|doc| doc.page_replace_font(1, "Courier", "Helvetica")),
             ),
             (
                 "page_add_page_num",
