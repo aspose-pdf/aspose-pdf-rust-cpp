@@ -1,6 +1,6 @@
 #![allow(unsafe_code)]
 use serde_json;
-use std::ffi::{c_char, c_uchar, c_void, CStr, CString};
+use std::ffi::{c_char, c_int, c_uchar, c_void, CStr, CString};
 
 use crate::enums::{CryptoAlgorithm, PageSize, Rotation};
 use crate::errors::PdfError;
@@ -913,6 +913,7 @@ impl Document {
     generate_fn!(_remove_text_footers, PDFDocument_RemoveTextFooters);
 
     generate_fn!(_decrypt, PDFDocument_Decrypt);
+    generate_fn!(_remove_signs, PDFDocument_RemoveSigns, filename: &str);
 
     generate_fn!(_page_to_jpg, PDFDocument_Page_to_Jpg, num: i32, resolution_dpi: i32, filename: &str);
     generate_fn!(_page_to_png, PDFDocument_Page_to_Png, num: i32, resolution_dpi: i32, filename: &str);
@@ -1487,6 +1488,241 @@ impl Document {
             debug_println!("error Document::get_permissions(): {error_str:?}");
             Err(PdfError::CoreExceptionError(error_str))
         }
+    }
+
+    /// Gets encrypted status of PDF-document.
+    ///
+    /// # Returns
+    /// * `Ok(bool)` - True if the page is encrypted.
+    /// * `Err(PdfError)` - If the operation fails.
+    pub fn is_encrypted(&self) -> Result<bool, PdfError> {
+        debug_println!("call Document::is_encrypted()");
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        let encrypted: i32 =
+            unsafe { PDFDocument_is_Encrypted(self.pdfdocumentclass, error.as_mut_ptr()) };
+        let error_str = Self::get_error(&mut error);
+        if error_str.is_empty() {
+            Ok(encrypted != 0)
+        } else {
+            debug_println!("error Document::is_encrypted(): {error_str:?}");
+            Err(PdfError::CoreExceptionError(error_str))
+        }
+    }
+
+    /// Get signed status of PDF-document.
+    ///
+    /// # Returns
+    /// * `Ok(bool)` - True if the page is signed.
+    /// * `Err(PdfError)` - If the operation fails.
+    pub fn is_signed(&self) -> Result<bool, PdfError> {
+        debug_println!("call Document::is_signed()");
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        let signed: i32 =
+            unsafe { PDFDocument_is_Signed(self.pdfdocumentclass, error.as_mut_ptr()) };
+        let error_str = Self::get_error(&mut error);
+        if error_str.is_empty() {
+            Ok(signed != 0)
+        } else {
+            debug_println!("error Document::is_signed(): {error_str:?}");
+            Err(PdfError::CoreExceptionError(error_str))
+        }
+    }
+
+    /// Sign a PDF-document using PKCS#7 digital signatures.
+    ///
+    /// # Arguments
+    /// * `num` - The page number (1-based).
+    /// * `sign_data` - The raw bytes of the signature (PKCS#7 specification in Internet RFC 2315).
+    /// * `psw_sign` - The password of the signature.
+    /// * `set_x_indent` - The x indent of the signature.
+    /// * `set_y_indent` - The y indent of the signature.
+    /// * `set_height` - The height of the signature.
+    /// * `set_width` - The width of the signature.
+    /// * `reason` - The reason of a signature.
+    /// * `contact` - The contact of a signature.
+    /// * `location` - The location of a signature.
+    /// * `is_visible` - The visiblity of signature.
+    /// * `appearance_data` - The raw bytes of the graphic appearance for the signature.
+    /// * `filename` - The path to the resulting PDF-document with signature.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn sign_pkcs7(
+        &self,
+        num: i32,
+        sign_data: &[u8],
+        psw_sign: &str,
+        set_x_indent: i32,
+        set_y_indent: i32,
+        set_height: i32,
+        set_width: i32,
+        reason: &str,
+        contact: &str,
+        location: &str,
+        is_visible: bool,
+        appearance_data: &[u8],
+        filename: &str,
+    ) -> Result<(), PdfError> {
+        debug_println!(
+            "call Document::sign_pkcs7({num:?}, {reason:?}, {contact:?}, {location:?}, {is_visible:?}, {filename:?})"
+        );
+        let sign_data_ptr = sign_data.as_ptr();
+        let sign_data_len = sign_data.len() as c_int;
+
+        let c_string_psw_sign = std::ffi::CString::new(psw_sign).unwrap();
+        let c_char_ptr_psw_sign = c_string_psw_sign.as_ptr();
+
+        let c_string_reason = std::ffi::CString::new(reason).unwrap();
+        let c_char_ptr_reason = c_string_reason.as_ptr();
+
+        let c_string_contact = std::ffi::CString::new(contact).unwrap();
+        let c_char_ptr_contact = c_string_contact.as_ptr();
+
+        let c_string_location = std::ffi::CString::new(location).unwrap();
+        let c_char_ptr_location = c_string_location.as_ptr();
+
+        let _is_visible: i32 = if is_visible { 1 } else { 0 };
+
+        let appearance_data_ptr = appearance_data.as_ptr();
+        let appearance_data_len = appearance_data.len() as c_int;
+
+        let c_string_filename = std::ffi::CString::new(filename).unwrap();
+        let c_char_ptr_filename = c_string_filename.as_ptr();
+
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        unsafe {
+            PDFDocument_SignPKCS7(
+                self.pdfdocumentclass,
+                num,
+                sign_data_ptr,
+                sign_data_len,
+                c_char_ptr_psw_sign as *const c_char,
+                set_x_indent,
+                set_y_indent,
+                set_height,
+                set_width,
+                c_char_ptr_reason as *const c_char,
+                c_char_ptr_contact as *const c_char,
+                c_char_ptr_location as *const c_char,
+                _is_visible,
+                appearance_data_ptr,
+                appearance_data_len,
+                c_char_ptr_filename as *const c_char,
+                error.as_mut_ptr(),
+            )
+        };
+        let error_str = Self::get_error(&mut error);
+        if error_str.is_empty() {
+            Ok(())
+        } else {
+            debug_println!(
+            "error Document::sign_pkcs7({num:?}, {reason:?}, {contact:?}, {location:?}, {is_visible:?}, {filename:?})");
+            Err(PdfError::CoreExceptionError(error_str))
+        }
+    }
+
+    /// Sign a PDF-document using PKCS#7 Detached digital signatures.
+    ///
+    /// # Arguments
+    /// * `num` - The page number (1-based).
+    /// * `sign_data` - The raw bytes of the signature (PKCS#7 specification in Internet RFC 2315).
+    /// * `psw_sign` - The password of the signature.
+    /// * `set_x_indent` - The x indent of the signature.
+    /// * `set_y_indent` - The y indent of the signature.
+    /// * `set_height` - The height of the signature.
+    /// * `set_width` - The width of the signature.
+    /// * `reason` - The reason of a signature.
+    /// * `contact` - The contact of a signature.
+    /// * `location` - The location of a signature.
+    /// * `is_visible` - The visiblity of signature.
+    /// * `appearance_data` - The raw bytes of the graphic appearance for the signature.
+    /// * `filename` - The path to the resulting PDF-document with signature.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn sign_pkcs7_detached(
+        &self,
+        num: i32,
+        sign_data: &[u8],
+        psw_sign: &str,
+        set_x_indent: i32,
+        set_y_indent: i32,
+        set_height: i32,
+        set_width: i32,
+        reason: &str,
+        contact: &str,
+        location: &str,
+        is_visible: bool,
+        appearance_data: &[u8],
+        filename: &str,
+    ) -> Result<(), PdfError> {
+        debug_println!(
+            "call Document::sign_pkcs7_detached({num:?}, {reason:?}, {contact:?}, {location:?}, {is_visible:?}, {filename:?})"
+        );
+        let sign_data_ptr = sign_data.as_ptr();
+        let sign_data_len = sign_data.len() as c_int;
+
+        let c_string_psw_sign = std::ffi::CString::new(psw_sign).unwrap();
+        let c_char_ptr_psw_sign = c_string_psw_sign.as_ptr();
+
+        let c_string_reason = std::ffi::CString::new(reason).unwrap();
+        let c_char_ptr_reason = c_string_reason.as_ptr();
+
+        let c_string_contact = std::ffi::CString::new(contact).unwrap();
+        let c_char_ptr_contact = c_string_contact.as_ptr();
+
+        let c_string_location = std::ffi::CString::new(location).unwrap();
+        let c_char_ptr_location = c_string_location.as_ptr();
+
+        let _is_visible: i32 = if is_visible { 1 } else { 0 };
+
+        let appearance_data_ptr = appearance_data.as_ptr();
+        let appearance_data_len = appearance_data.len() as c_int;
+
+        let c_string_filename = std::ffi::CString::new(filename).unwrap();
+        let c_char_ptr_filename = c_string_filename.as_ptr();
+
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        unsafe {
+            PDFDocument_SignPKCS7Detached(
+                self.pdfdocumentclass,
+                num,
+                sign_data_ptr,
+                sign_data_len,
+                c_char_ptr_psw_sign as *const c_char,
+                set_x_indent,
+                set_y_indent,
+                set_height,
+                set_width,
+                c_char_ptr_reason as *const c_char,
+                c_char_ptr_contact as *const c_char,
+                c_char_ptr_location as *const c_char,
+                _is_visible,
+                appearance_data_ptr,
+                appearance_data_len,
+                c_char_ptr_filename as *const c_char,
+                error.as_mut_ptr(),
+            )
+        };
+        let error_str = Self::get_error(&mut error);
+        if error_str.is_empty() {
+            Ok(())
+        } else {
+            debug_println!(
+            "error Document::sign_pkcs7_detached({num:?}, {reason:?}, {contact:?}, {location:?}, {is_visible:?}, {filename:?})");
+            Err(PdfError::CoreExceptionError(error_str))
+        }
+    }
+
+    /// Remove signs from PDF-document.
+    ///
+    /// # Arguments
+    /// * `filename` - The path to the resulting PDF-document without signatures.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn remove_signs(&self, filename: &str) -> Result<(), PdfError> {
+        self._remove_signs(filename)
     }
 
     /// Convert and save the specified page as Jpg-image.

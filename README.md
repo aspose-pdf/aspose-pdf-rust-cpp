@@ -88,6 +88,18 @@ Contains unique features for converting PDF to other formats.
   - `set_permissions`, `get_permissions`
     Set permissions for PDF-document and get current permissions of PDF-document.
 
+- **Check encryption status:**
+  - `is_encrypted`
+    Get encrypted status of PDF-document.
+
+- **Digital signatures:**
+  - `sign_pkcs7`, `sign_pkcs7_detached`
+    Sign a PDF-document using PKCS#7/PKCS#7 Detached digital signatures.
+  - `remove_signs`
+    Remove signs from PDF-document.
+  - `is_signed`
+    Get signed status of PDF-document.
+
 ## Platforms
 
 Implemented support for Linux x64, macOS x86_64, macOS arm64 and Windows x64 platforms.

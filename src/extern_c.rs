@@ -61,6 +61,57 @@ extern "C" {
         pdfdocumentclass: *const c_void,
         error: *mut *const c_char,
     ) -> c_int;
+    pub fn PDFDocument_is_Encrypted(
+        pdfdocumentclass: *const c_void,
+        error: *mut *const c_char,
+    ) -> c_int;
+    pub fn PDFDocument_SignPKCS7(
+        pdfdocumentclass: *const c_void,
+        num: c_int,
+        signData: *const u8,
+        signLen: c_int,
+        pswSign: *const c_char,
+        setXIndent: c_int,
+        setYIndent: c_int,
+        setHeight: c_int,
+        setWidth: c_int,
+        reason: *const c_char,
+        contact: *const c_char,
+        location: *const c_char,
+        isVisible: c_int,
+        appearanceData: *const u8,
+        appearanceLen: c_int,
+        filename: *const c_char,
+        error: *mut *const c_char,
+    ) -> c_int;
+    pub fn PDFDocument_SignPKCS7Detached(
+        pdfdocumentclass: *const c_void,
+        num: c_int,
+        signData: *const u8,
+        signLen: c_int,
+        pswSign: *const c_char,
+        setXIndent: c_int,
+        setYIndent: c_int,
+        setHeight: c_int,
+        setWidth: c_int,
+        reason: *const c_char,
+        contact: *const c_char,
+        location: *const c_char,
+        isVisible: c_int,
+        appearanceData: *const u8,
+        appearanceLen: c_int,
+        filename: *const c_char,
+        error: *mut *const c_char,
+    ) -> c_int;
+    pub fn PDFDocument_is_Signed(
+        pdfdocumentclass: *const c_void,
+        error: *mut *const c_char,
+    ) -> c_int;
+    pub fn PDFDocument_RemoveSigns(
+        pdfdocumentclass: *const c_void,
+        filename: *const c_char,
+        error: *mut *const c_char,
+    );
     pub fn PDFDocument_ExtractText(
         pdfdocumentclass: *const c_void,
         error: *mut *const c_char,
