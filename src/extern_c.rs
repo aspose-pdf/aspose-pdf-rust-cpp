@@ -112,6 +112,35 @@ extern "C" {
         filename: *const c_char,
         error: *mut *const c_char,
     );
+    pub fn PDFDocument_is_PdfaCompliant(
+        pdfdocumentclass: *const c_void,
+        error: *mut *const c_char,
+    ) -> c_int;
+    pub fn PDFDocument_is_PdfUaCompliant(
+        pdfdocumentclass: *const c_void,
+        error: *mut *const c_char,
+    ) -> c_int;
+    pub fn PDFDocument_RemovePdfaCompliance(
+        pdfdocumentclass: *const c_void,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_RemovePdfUaCompliance(
+        pdfdocumentclass: *const c_void,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_Convert(
+        pdfdocumentclass: *const c_void,
+        outputLog: *mut *const c_char,
+        pdfFormat: c_int,
+        convertErrorAction: c_int,
+        error: *mut *const c_char,
+    ) -> c_int;
+    pub fn PDFDocument_Validate(
+        pdfdocumentclass: *const c_void,
+        outputLog: *mut *const c_char,
+        pdfFormat: c_int,
+        error: *mut *const c_char,
+    ) -> c_int;
     pub fn PDFDocument_ExtractText(
         pdfdocumentclass: *const c_void,
         error: *mut *const c_char,

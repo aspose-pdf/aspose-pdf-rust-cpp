@@ -2,7 +2,7 @@
 use serde_json;
 use std::ffi::{c_char, c_int, c_uchar, c_void, CStr, CString};
 
-use crate::enums::{CryptoAlgorithm, PageSize, Rotation};
+use crate::enums::{ConvertErrorAction, CryptoAlgorithm, PageSize, PdfFormat, Rotation};
 use crate::errors::PdfError;
 use crate::extern_c::*;
 use crate::permissions::Permissions;
@@ -914,6 +914,8 @@ impl Document {
 
     generate_fn!(_decrypt, PDFDocument_Decrypt);
     generate_fn!(_remove_signs, PDFDocument_RemoveSigns, filename: &str);
+    generate_fn!(_remove_pdfa_compliance, PDFDocument_RemovePdfaCompliance);
+    generate_fn!(_remove_pdfua_compliance, PDFDocument_RemovePdfUaCompliance);
 
     generate_fn!(_page_to_jpg, PDFDocument_Page_to_Jpg, num: i32, resolution_dpi: i32, filename: &str);
     generate_fn!(_page_to_png, PDFDocument_Page_to_Png, num: i32, resolution_dpi: i32, filename: &str);
@@ -1723,6 +1725,140 @@ impl Document {
     /// Returns `PdfError` if the operation fails.
     pub fn remove_signs(&self, filename: &str) -> Result<(), PdfError> {
         self._remove_signs(filename)
+    }
+
+    /// Get PDF/A compliant status of PDF-document.
+    ///
+    /// # Returns
+    /// * `Ok(bool)` - True if the document is PDF/A compliant.
+    /// * `Err(PdfError)` - If the operation fails.
+    pub fn is_pdfa_compliant(&self) -> Result<bool, PdfError> {
+        debug_println!("call Document::is_pdfa_compliant()");
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        let result: i32 =
+            unsafe { PDFDocument_is_PdfaCompliant(self.pdfdocumentclass, error.as_mut_ptr()) };
+        let error_str = Self::get_error(&mut error);
+        if error_str.is_empty() {
+            Ok(result != 0)
+        } else {
+            debug_println!("error Document::is_pdfa_compliant(): {error_str:?}");
+            Err(PdfError::CoreExceptionError(error_str))
+        }
+    }
+
+    /// Get PDF/UA compliant status of PDF-document.
+    ///
+    /// # Returns
+    /// * `Ok(bool)` - True if the document is PDF/UA compliant.
+    /// * `Err(PdfError)` - If the operation fails.
+    pub fn is_pdfua_compliant(&self) -> Result<bool, PdfError> {
+        debug_println!("call Document::is_pdfua_compliant()");
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        let result: i32 =
+            unsafe { PDFDocument_is_PdfUaCompliant(self.pdfdocumentclass, error.as_mut_ptr()) };
+        let error_str = Self::get_error(&mut error);
+        if error_str.is_empty() {
+            Ok(result != 0)
+        } else {
+            debug_println!("error Document::is_pdfua_compliant(): {error_str:?}");
+            Err(PdfError::CoreExceptionError(error_str))
+        }
+    }
+
+    /// Remove PDF/A compliance from a PDF-document.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn remove_pdfa_compliance(&self) -> Result<(), PdfError> {
+        self._remove_pdfa_compliance()
+    }
+
+    /// Remove PDF/UA compliance from a PDF-document.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn remove_pdfua_compliance(&self) -> Result<(), PdfError> {
+        self._remove_pdfua_compliance()
+    }
+
+    /// Convert a PDF-document into a PDF-document with the specified PDF format.
+    ///
+    /// # Arguments
+    /// * `pdf_format` - The target PDF format standard (`PdfFormat` enum).
+    /// * `action` - The action to take on conversion errors (`ConvertErrorAction` enum).
+    ///
+    /// # Returns
+    /// * `Ok((bool, String))` - The operation result, `String` contains the conversion log.
+    /// * `Err(PdfError)` - If the operation fails.
+    pub fn convert(
+        &self,
+        pdf_format: PdfFormat,
+        action: ConvertErrorAction,
+    ) -> Result<(bool, String), PdfError> {
+        debug_println!("call Document::convert({pdf_format:?}, {action:?})");
+        let mut output_log: *const c_char = std::ptr::null();
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        let result: i32 = unsafe {
+            PDFDocument_Convert(
+                self.pdfdocumentclass,
+                &mut output_log,
+                pdf_format as i32,
+                action as i32,
+                error.as_mut_ptr(),
+            )
+        };
+        let log_str = if !output_log.is_null() {
+            let c_str = unsafe { CStr::from_ptr(output_log) };
+            let s = c_str.to_str().map(|s| s.to_owned()).unwrap_or_default();
+            unsafe { c_free_string(output_log as *mut c_char) };
+            s
+        } else {
+            String::new()
+        };
+        let error_str = Self::get_error(&mut error);
+        if error_str.is_empty() {
+            Ok((result != 0, log_str))
+        } else {
+            debug_println!("error Document::convert({pdf_format:?}, {action:?}): {error_str:?}");
+            Err(PdfError::CoreExceptionError(error_str))
+        }
+    }
+
+    /// Validate a PDF-document for compliance with the PDF format.
+    ///
+    /// # Arguments
+    /// * `pdf_format` - The PDF format standard to validate against (`PdfFormat` enum).
+    ///
+    /// # Returns
+    /// * `Ok((bool, String))` - The operation result, `String` contains the validation log.
+    /// * `Err(PdfError)` - If the operation fails.
+    pub fn validate(&self, pdf_format: PdfFormat) -> Result<(bool, String), PdfError> {
+        debug_println!("call Document::validate({pdf_format:?})");
+        let mut output_log: *const c_char = std::ptr::null();
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        let result: i32 = unsafe {
+            PDFDocument_Validate(
+                self.pdfdocumentclass,
+                &mut output_log,
+                pdf_format as i32,
+                error.as_mut_ptr(),
+            )
+        };
+        let log_str = if !output_log.is_null() {
+            let c_str = unsafe { CStr::from_ptr(output_log) };
+            let s = c_str.to_str().map(|s| s.to_owned()).unwrap_or_default();
+            unsafe { c_free_string(output_log as *mut c_char) };
+            s
+        } else {
+            String::new()
+        };
+        let error_str = Self::get_error(&mut error);
+        if error_str.is_empty() {
+            Ok((result != 0, log_str))
+        } else {
+            debug_println!("error Document::validate({pdf_format:?}): {error_str:?}");
+            Err(PdfError::CoreExceptionError(error_str))
+        }
     }
 
     /// Convert and save the specified page as Jpg-image.

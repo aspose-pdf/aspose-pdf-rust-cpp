@@ -58,6 +58,20 @@ Contains unique features for converting PDF to other formats.
 - **Others:**
   - `EPUB`, `DICOM`, `SVG`, `SVG(ZIP)`, `XPS`, `TEX`, `TXT`, `MARKDOWN`
 
+### PDF Compliance
+
+- **Convert and validate:**
+  - `convert`, `validate`
+    Convert and validate PDF for a specific standard.
+
+- **Remove compliance:**
+  - `remove_pdfa_compliance`, `remove_pdfua_compliance`
+    Remove PDF/A and PDF/UA compliance.
+
+- **Check compliance:**
+  - `is_pdfa_compliant`, `is_pdfua_compliant`
+    Check PDF/A and PDF/UA compliance.
+
 ### Metadata
 
 - **Product Info:**

@@ -8,7 +8,7 @@ mod product_info;
 mod utils;
 
 pub use document::Document;
-pub use enums::{CryptoAlgorithm, PageSize, Rotation};
+pub use enums::{ConvertErrorAction, CryptoAlgorithm, PageSize, PdfFormat, Rotation};
 pub use errors::PdfError;
 pub use permissions::Permissions;
 pub use product_info::ProductInfo;
@@ -857,6 +857,92 @@ mod test {
             // Open with password
             Document::open_with_password(&filename_out, user_pass)?;
         }
+
+        Ok(())
+    }
+
+    #[test]
+    fn pdf_pdfa_compliance() -> Result<(), Box<dyn std::error::Error>> {
+        let filename = format!("{}/pdf_pdfa_compliance.pdf", std::env::temp_dir().display());
+
+        // Create a new PDF-document with page and text, then save and close
+        {
+            let pdf = Document::new()?;
+            pdf.page_add()?;
+            pdf.page_add_text(1, "Sample text for PDF/A test")?;
+            pdf.save_as(&filename)?;
+        }
+
+        // Re-open PDF
+        let pdf = Document::open(&filename)?;
+
+        // Convert to PDF/A-2a
+        let (ok, log) = pdf.convert(PdfFormat::PDF_A_2A, ConvertErrorAction::Delete)?;
+        assert!(ok, "Convert PDF/A-2a should succeed, log: {}", log);
+
+        // Validate PDF/A-2a
+        let (ok, log) = pdf.validate(PdfFormat::PDF_A_2A)?;
+        assert!(ok, "Validate PDF/A-2a should succeed, log: {}", log);
+
+        // Check PDF/A compliance
+        assert!(
+            pdf.is_pdfa_compliant()?,
+            "Document should be PDF/A compliant after convert"
+        );
+
+        // Remove PDF/A compliance
+        pdf.remove_pdfa_compliance()?;
+        pdf.save_as(&filename)?;
+
+        // Check PDF/A compliance is removed
+        assert!(
+            !pdf.is_pdfa_compliant()?,
+            "Document should not be PDF/A compliant after removal"
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn pdf_pdfua_compliance() -> Result<(), Box<dyn std::error::Error>> {
+        let filename = format!(
+            "{}/pdf_pdfua_compliance.pdf",
+            std::env::temp_dir().display()
+        );
+
+        // Create a new PDF-document with page and text, then save and close
+        {
+            let pdf = Document::new()?;
+            pdf.page_add()?;
+            pdf.page_add_text(1, "Sample text for PDF/UA test")?;
+            pdf.save_as(&filename)?;
+        }
+
+        // Re-open PDF
+        let pdf = Document::open(&filename)?;
+
+        // Initial PDF/UA compliance check
+        assert!(
+            !pdf.is_pdfua_compliant()?,
+            "New document should not be PDF/UA compliant"
+        );
+
+        // Validate PDF/UA-1 (expected to fail for simple document)
+        let (ok, _log) = pdf.validate(PdfFormat::PDF_UA_1)?;
+        assert!(!ok, "Validate PDF/UA-1 should fail for simple document");
+
+        // Convert to PDF/UA-1 (will not succeed for simple document)
+        let (ok, _log) = pdf.convert(PdfFormat::PDF_UA_1, ConvertErrorAction::Delete)?;
+        assert!(!ok, "Convert PDF/UA-1 should fail for simple document");
+
+        // Remove PDF/UA compliance (safe no-op)
+        pdf.remove_pdfua_compliance()?;
+
+        // Check PDF/UA compliance (still not compliant)
+        assert!(
+            !pdf.is_pdfua_compliant()?,
+            "Document should not be PDF/UA compliant after removal"
+        );
 
         Ok(())
     }

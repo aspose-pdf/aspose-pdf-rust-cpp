@@ -11,6 +11,11 @@ use bzip2::read::BzDecoder;
 use sha2::{Digest, Sha256};
 
 fn main() -> Result<(), Box<dyn Error>> {
+    // If we're building documentation on docs.rs, skip binary checks and linking
+    if std::env::var("DOCS_RS").is_ok() {
+        return Ok(());
+    }
+
     // If we're in publish mode (e.g. publishing to crates.io), skip library unpacking and validation
     // This is useful because large binaries (.dll, .so, .dylib) are not included in the published crate
     if std::env::var("ASPOSE_PDF_PUBLISH").is_ok() {
