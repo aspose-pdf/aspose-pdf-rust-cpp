@@ -419,6 +419,78 @@ impl Document {
         }
     }
 
+    /// Get meta information value of PDF-document.
+    ///
+    /// # Arguments
+    /// * `key` - The key whose value to get.
+    ///
+    /// # Returns
+    /// Returns `Ok(String)` containing the value, or `Err(PdfError)` if extraction fails.
+    pub fn get_meta_info(&self, key: &str) -> Result<String, PdfError> {
+        debug_println!("call Document::get_meta_info({key})");
+        let c_string_key = std::ffi::CString::new(key).unwrap();
+        let c_char_ptr_key = c_string_key.as_ptr();
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        let ret_val: *const c_char = unsafe {
+            PDFDocument_get_MetaInfo(
+                self.pdfdocumentclass,
+                c_char_ptr_key as *const c_char,
+                error.as_mut_ptr(),
+            )
+        };
+        let ret_val_str = unsafe { CStr::from_ptr(ret_val) }
+            .to_str()
+            .map(|s| s.to_owned())
+            .unwrap();
+        unsafe { c_free_string(ret_val as *mut c_char) };
+        let error_str = Self::get_error(&mut error);
+        if error_str.is_empty() {
+            Ok(ret_val_str)
+        } else {
+            debug_println!("error Document::get_meta_info(): {error_str:?}");
+            Err(PdfError::CoreExceptionError(error_str))
+        }
+    }
+
+    /// Set meta information value of PDF-document.
+    ///
+    /// # Arguments
+    /// * `key` - The key whose value to set.
+    /// * `value` - The value to be set.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn set_meta_info(&self, key: &str, value: &str) -> Result<(), PdfError> {
+        self._set_meta_info(key, value)
+    }
+
+    /// Clear all meta information values of PDF-document.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn clear_meta_info(&self) -> Result<(), PdfError> {
+        self._clear_meta_info()
+    }
+
+    /// Get a value indicating whether document is linearized.
+    ///
+    /// # Returns
+    /// * `Ok(bool)` - True if the document is linearized.
+    /// * `Err(PdfError)` - If the operation fails.
+    pub fn is_linearized(&self) -> Result<bool, PdfError> {
+        debug_println!("call Document::is_linearized()");
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        let result: i32 =
+            unsafe { PDFDocument_is_Linearized(self.pdfdocumentclass, error.as_mut_ptr()) };
+        let error_str = Self::get_error(&mut error);
+        if error_str.is_empty() {
+            Ok(result != 0)
+        } else {
+            debug_println!("error Document::is_linearized(): {error_str:?}");
+            Err(PdfError::CoreExceptionError(error_str))
+        }
+    }
+
     /// Return the PDF-document contents as plain text.
     ///
     /// # Returns
@@ -912,6 +984,9 @@ impl Document {
     generate_fn!(_remove_text_headers, PDFDocument_RemoveTextHeaders);
     generate_fn!(_remove_text_footers, PDFDocument_RemoveTextFooters);
 
+    generate_fn!(_set_meta_info, PDFDocument_set_MetaInfo, key: &str, value: &str);
+    generate_fn!(_clear_meta_info, PDFDocument_ClearMetaInfo);
+
     generate_fn!(_decrypt, PDFDocument_Decrypt);
     generate_fn!(_remove_signs, PDFDocument_RemoveSigns, filename: &str);
     generate_fn!(_remove_pdfa_compliance, PDFDocument_RemovePdfaCompliance);
@@ -944,6 +1019,8 @@ impl Document {
     generate_fn!(_page_remove_watermarks, PDFDocument_Page_RemoveWatermarks, num: i32);
     generate_fn!(_page_remove_text_headers, PDFDocument_Page_RemoveTextHeaders, num: i32);
     generate_fn!(_page_remove_text_footers, PDFDocument_Page_RemoveTextFooters, num: i32);
+
+    generate_fn!(_page_merge_layers, PDFDocument_Page_MergeLayers, num: i32, new_layer_name: &str);
 
     /// Save the previously opened PDF-document.
     ///
@@ -2174,6 +2251,18 @@ impl Document {
     /// Returns `PdfError` if the operation fails.
     pub fn page_remove_text_footers(&self, num: i32) -> Result<(), PdfError> {
         self._page_remove_text_footers(num)
+    }
+
+    /// Merge all layers on the page into a single layer with the specified new layer name.
+    ///
+    /// # Arguments
+    /// * `num` - The page number (1-based).
+    /// * `new_layer_name` - The name of the new layer after merging.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn page_merge_layers(&self, num: i32, new_layer_name: &str) -> Result<(), PdfError> {
+        self._page_merge_layers(num, new_layer_name)
     }
 }
 

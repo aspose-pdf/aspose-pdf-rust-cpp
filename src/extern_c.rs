@@ -40,6 +40,22 @@ extern "C" {
         pagerange: *const c_char,
         error: *mut *const c_char,
     );
+    pub fn PDFDocument_get_MetaInfo(
+        pdfdocumentclass: *const c_void,
+        key: *const c_char,
+        error: *mut *const c_char,
+    ) -> *const c_char;
+    pub fn PDFDocument_set_MetaInfo(
+        pdfdocumentclass: *const c_void,
+        key: *const c_char,
+        value: *const c_char,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_ClearMetaInfo(pdfdocumentclass: *const c_void, error: *mut *const c_char);
+    pub fn PDFDocument_is_Linearized(
+        pdfdocumentclass: *const c_void,
+        error: *mut *const c_char,
+    ) -> c_int;
     pub fn PDFDocument_Encrypt(
         pdfdocumentclass: *const c_void,
         userPassword: *const c_char,
@@ -516,6 +532,12 @@ extern "C" {
     pub fn PDFDocument_Page_RemoveTextFooters(
         pdfdocumentclass: *const c_void,
         num: c_int,
+        error: *mut *const c_char,
+    );
+    pub fn PDFDocument_Page_MergeLayers(
+        pdfdocumentclass: *const c_void,
+        num: c_int,
+        newLayerName: *const c_char,
         error: *mut *const c_char,
     );
 }

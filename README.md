@@ -16,10 +16,14 @@ Contains unique features for converting PDF to other formats.
 - **Page management**
   - `add`, `insert`, `delete`, `count`
     Add, insert, delete, and count pages in a document.
+  - `page_merge_layers`
+    Merges all layers on the page into a single layer with the specified new layer name.
 
 - **Document-level operations**
   - `optimize`, `optimize_resource`, `optimize_file_size`, `grayscale`, `flatten`, `rotate`, `crop`, `set_background`, `repair`
     Optimize PDF-document layout, size and resources, convert to grayscale, flatten, rotate pages, crope pages, set background, and repair corrupted documents.
+  - `is_linearized`
+    Get a value indicating whether document is linearized.
   - `replace_text`, `add_page_num`, `add_text_header`, `add_text_footer`, `add_watermark`
     Replace text, add page numbers, insert custom text in the header or footer, and add watermark.
   - `remove_annotations`, `remove_attachments`, `remove_blank_pages`, `remove_bookmarks`, `remove_hidden_text`, `remove_images`, `remove_tables`, `remove_watermarks`, `remove_text_headers`, `remove_text_footers`, `remove_javascripts`
@@ -77,6 +81,9 @@ Contains unique features for converting PDF to other formats.
 - **Product Info:**
   - `about`
     Return metadata information about the Aspose.PDF for Rust via C++ with product name, version, release date, and license status.
+- **Meta Information:**
+  - `get_meta_info`, `set_meta_info`, `clear_meta_info`
+    Get/Set meta information value, and Clear all meta information values.
 
 ### PDF analysis
 
