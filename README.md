@@ -18,6 +18,8 @@ Contains unique features for converting PDF to other formats.
     Add, insert, delete, and count pages in a document.
   - `page_merge_layers`
     Merges all layers on the page into a single layer with the specified new layer name.
+  - `page_layers`
+    Gets layers' names on page.
 
 - **Document-level operations**
   - `optimize`, `optimize_resource`, `optimize_file_size`, `grayscale`, `flatten`, `rotate`, `crop`, `set_background`, `repair`

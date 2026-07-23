@@ -453,6 +453,10 @@ mod test {
                 "page_merge_layers",
                 Box::new(|doc| doc.page_merge_layers(1, "New Layer Name")),
             ),
+            (
+                "page_layers",
+                Box::new(|doc| doc.page_layers(1).map(|_| ())),
+            ),
         ];
 
         for (name, action_fn) in actions {

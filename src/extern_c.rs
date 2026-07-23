@@ -540,6 +540,11 @@ extern "C" {
         newLayerName: *const c_char,
         error: *mut *const c_char,
     );
+    pub fn PDFDocument_Page_Layers(
+        pdfdocumentclass: *const c_void,
+        num: c_int,
+        error: *mut *const c_char,
+    ) -> *const c_char;
 }
 
 extern "C" {

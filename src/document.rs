@@ -1,4 +1,5 @@
 #![allow(unsafe_code)]
+use serde::Deserialize;
 use serde_json;
 use std::ffi::{c_char, c_int, c_uchar, c_void, CStr, CString};
 
@@ -2263,6 +2264,54 @@ impl Document {
     /// Returns `PdfError` if the operation fails.
     pub fn page_merge_layers(&self, num: i32, new_layer_name: &str) -> Result<(), PdfError> {
         self._page_merge_layers(num, new_layer_name)
+    }
+
+    /// Get layers' names on page.
+    ///
+    /// # Arguments
+    /// * `num` - The page number (1-based).
+    ///
+    /// # Returns
+    /// * `Ok(Vec<String>)` - The array layers' names.
+    /// * `Err(PdfError)` - If the operation fails.
+    pub fn page_layers(&self, num: i32) -> Result<Vec<String>, PdfError> {
+        debug_println!("call Document::page_layers({num:?})");
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        let char_ptr =
+            unsafe { PDFDocument_Page_Layers(self.pdfdocumentclass, num, error.as_mut_ptr()) };
+
+        let json_str = if char_ptr.is_null() {
+            String::new()
+        } else {
+            let c_str = unsafe { CStr::from_ptr(char_ptr) };
+            let s = c_str.to_str().map(|s| s.to_owned()).unwrap_or_default();
+            unsafe { c_free_string(char_ptr as *mut c_char) };
+            s
+        };
+
+        let error_str = Self::get_error(&mut error);
+        if !error_str.is_empty() {
+            debug_println!("error Document::page_layers({num:?}): {error_str:?}");
+            return Err(PdfError::CoreExceptionError(error_str));
+        }
+
+        if json_str.is_empty() {
+            return Err(PdfError::CoreExceptionError(
+                "PDFDocument_Page_Layers: unexpected null result".to_string(),
+            ));
+        }
+
+        #[derive(Deserialize)]
+        struct LayersResponse {
+            #[serde(rename = "Layers")]
+            layers: Vec<String>,
+        }
+
+        let parsed: LayersResponse = serde_json::from_str(&json_str).map_err(|e| {
+            PdfError::CoreExceptionError(format!("page_layers: failed to parse JSON: {e}"))
+        })?;
+
+        Ok(parsed.layers)
     }
 }
 
