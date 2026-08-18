@@ -1096,4 +1096,64 @@ mod test {
 
         Ok(())
     }
+
+    #[test]
+    fn pdf_reverse_pages() -> Result<(), Box<dyn std::error::Error>> {
+        use super::*;
+
+        // Create a new PDF document
+        let pdf = Document::new()?;
+
+        // Add two pages
+        pdf.page_add()?;
+        pdf.page_add()?;
+
+        // Add page numbers (default numbering)
+        pdf.add_page_num()?;
+
+        // Reverse the order of pages
+        pdf.reverse_pages()?;
+
+        // Extract the text from the whole document
+        let extracted = pdf.extract_text()?;
+        let cleaned = extracted
+            .replace(" ", "")
+            .replace("\n", "")
+            .replace("\r", "");
+
+        // After reversing, the page numbers should appear as "21"
+        assert_eq!(cleaned, "21");
+
+        Ok(())
+    }
+
+    #[test]
+    fn pdf_reorder_pages() -> Result<(), Box<dyn std::error::Error>> {
+        use super::*;
+
+        // Create a new PDF document
+        let pdf = Document::new()?;
+
+        // Add two pages
+        pdf.page_add()?;
+        pdf.page_add()?;
+
+        // Add page numbers (default numbering)
+        pdf.add_page_num()?;
+
+        // Reorder pages
+        pdf.reorder_pages(&[2, 1])?;
+
+        // Extract the text from the whole document
+        let extracted = pdf.extract_text()?;
+        let cleaned = extracted
+            .replace(" ", "")
+            .replace("\n", "")
+            .replace("\r", "");
+
+        // After reordering, the page numbers should appear as "21"
+        assert_eq!(cleaned, "21");
+
+        Ok(())
+    }
 }

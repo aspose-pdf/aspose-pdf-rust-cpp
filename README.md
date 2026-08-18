@@ -32,6 +32,8 @@ Contains unique features for converting PDF to other formats.
     Remove annotations, attachments, blank pages, bookmarks, hidden text, images, tables, watermark, headers, footers, and embedded JavaScript code.
   - `embed_fonts`, `unembed_fonts`, `replace_font`
     Embed and unembed fonts a PDF-document, and replaces font.
+  - `reverse_pages`, `reorder_pages`
+    Reverse the order of pages in PDF-document, and reorder pages.
 
 - **Page-level operations**
   - `page_rotate`, `page_crop`, `page_set_size`, `page_grayscale`, `page_add_text`, `page_add_watermark`

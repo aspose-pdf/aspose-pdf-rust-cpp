@@ -260,6 +260,13 @@ extern "C" {
         pdfdocumentclass: *const c_void,
         error: *mut *const c_char,
     );
+    pub fn PDFDocument_ReversePages(pdfdocumentclass: *const c_void, error: *mut *const c_char);
+    pub fn PDFDocument_ReorderPages(
+        pdfdocumentclass: *const c_void,
+        pagesArray: *const i32,
+        pagesArrayLen: i32,
+        error: *mut *const c_char,
+    );
     pub fn PDFDocument_Page_get_Count(
         pdfdocumentclass: *const c_void,
         error: *mut *const c_char,

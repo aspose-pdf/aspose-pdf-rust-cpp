@@ -993,6 +993,8 @@ impl Document {
     generate_fn!(_remove_pdfa_compliance, PDFDocument_RemovePdfaCompliance);
     generate_fn!(_remove_pdfua_compliance, PDFDocument_RemovePdfUaCompliance);
 
+    generate_fn!(_reverse_pages, PDFDocument_ReversePages);
+
     generate_fn!(_page_to_jpg, PDFDocument_Page_to_Jpg, num: i32, resolution_dpi: i32, filename: &str);
     generate_fn!(_page_to_png, PDFDocument_Page_to_Png, num: i32, resolution_dpi: i32, filename: &str);
     generate_fn!(_page_to_bmp, PDFDocument_Page_to_Bmp, num: i32, resolution_dpi: i32, filename: &str);
@@ -1454,6 +1456,45 @@ impl Document {
     /// Returns `PdfError` if the operation fails.
     pub fn remove_text_footers(&self) -> Result<(), PdfError> {
         self._remove_text_footers()
+    }
+
+    /// Reverse the order of pages in PDF-document.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn reverse_pages(&self) -> Result<(), PdfError> {
+        self._reverse_pages()
+    }
+
+    /// Reorder pages in PDF-document.
+    ///
+    /// # Arguments
+    /// * `num_pages` - The slice of new page positions (1-based); the pages listed are placed first in the specified order, while all unlisted pages retain their original order and follow them
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn reorder_pages(&self, num_pages: &[i32]) -> Result<(), PdfError> {
+        debug_println!("call Document::reorder_pages({num_pages:?})");
+        if num_pages.is_empty() {
+            return Ok(());
+        }
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        let pages_array_len = num_pages.len() as i32;
+        unsafe {
+            PDFDocument_ReorderPages(
+                self.pdfdocumentclass,
+                num_pages.as_ptr(),
+                pages_array_len,
+                error.as_mut_ptr(),
+            )
+        };
+        let error_str = Self::get_error(&mut error);
+        if error_str.is_empty() {
+            Ok(())
+        } else {
+            debug_println!("error Document::reorder_pages({num_pages:?}): {error_str:?}");
+            Err(PdfError::CoreExceptionError(error_str))
+        }
     }
 
     /// Encrypt PDF-document.
