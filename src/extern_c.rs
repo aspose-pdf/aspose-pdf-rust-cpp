@@ -267,6 +267,11 @@ extern "C" {
         pagesArrayLen: i32,
         error: *mut *const c_char,
     );
+    pub fn PDFDocument_RedactText(
+        pdfdocumentclass: *const c_void,
+        searchPattern: *const c_char,
+        error: *mut *const c_char,
+    );
     pub fn PDFDocument_Page_get_Count(
         pdfdocumentclass: *const c_void,
         error: *mut *const c_char,

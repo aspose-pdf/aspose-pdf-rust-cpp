@@ -994,6 +994,7 @@ impl Document {
     generate_fn!(_remove_pdfua_compliance, PDFDocument_RemovePdfUaCompliance);
 
     generate_fn!(_reverse_pages, PDFDocument_ReversePages);
+    generate_fn!(_redact_text, PDFDocument_RedactText, search_pattern: &str);
 
     generate_fn!(_page_to_jpg, PDFDocument_Page_to_Jpg, num: i32, resolution_dpi: i32, filename: &str);
     generate_fn!(_page_to_png, PDFDocument_Page_to_Png, num: i32, resolution_dpi: i32, filename: &str);
@@ -1495,6 +1496,17 @@ impl Document {
             debug_println!("error Document::reorder_pages({num_pages:?}): {error_str:?}");
             Err(PdfError::CoreExceptionError(error_str))
         }
+    }
+
+    /// Redact permanently and blacks out sensitive text in PDF-document.
+    ///
+    /// # Arguments
+    /// * `search_pattern` - The regular expression (regex, C#-like syntax) pattern used to search.
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the operation fails.
+    pub fn redact_text(&self, search_pattern: &str) -> Result<(), PdfError> {
+        self._redact_text(search_pattern)
     }
 
     /// Encrypt PDF-document.

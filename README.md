@@ -34,6 +34,8 @@ Contains unique features for converting PDF to other formats.
     Embed and unembed fonts a PDF-document, and replaces font.
   - `reverse_pages`, `reorder_pages`
     Reverse the order of pages in PDF-document, and reorder pages.
+  - `redact_text`
+    Redact permanently and blacks out sensitive text in PDF-document.
 
 - **Page-level operations**
   - `page_rotate`, `page_crop`, `page_set_size`, `page_grayscale`, `page_add_text`, `page_add_watermark`

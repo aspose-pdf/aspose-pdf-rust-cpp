@@ -1156,4 +1156,42 @@ mod test {
 
         Ok(())
     }
+
+    #[test]
+    fn pdf_redact_text() -> Result<(), Box<dyn std::error::Error>> {
+        // Create a new empty PDF-document
+        let pdf = Document::new()?;
+
+        // Add a single page
+        pdf.page_add()?;
+
+        // Insert text that contains an identifier to be redacted
+        let plain = "Employee ID: 123-45-6789 - Name: Alice Johnson";
+        pdf.page_add_text(1, plain)?;
+
+        // Persist the changes so the text really exists in the file
+        pdf.save()?;
+
+        // Redact the identifier using a regular-expression pattern
+        let re_pattern = r"\d{3}-\d{2}-\d{4}";
+        pdf.redact_text(re_pattern)?;
+
+        // Save the document after redaction
+        pdf.save()?;
+
+        // Extract the text and verify that the identifier disappeared
+        let extracted = pdf.extract_text()?;
+        assert!(
+            !extracted.contains("123-45-6789"),
+            "Extracted text still contains the redacted identifier"
+        );
+
+        // Verify that the remaining content is still present
+        assert!(
+            extracted.contains("Name: Alice Johnson"),
+            "Extracted text lost non-redacted content"
+        );
+
+        Ok(())
+    }
 }
