@@ -935,6 +935,127 @@ impl Document {
         }
     }
 
+    /// Add stamp to PDF-document.
+    ///
+    /// # Arguments
+    /// * `alternative_text` - The alternative stamp text.
+    /// * `image_data` - The raw bytes of the image.
+    /// * `is_background` - The stamp is background.
+    /// * `x_indent` - The x indent of the stamp.
+    /// * `y_indent` - The y indent of the stamp.
+    /// * `height` - The height of the stamp.
+    /// * `width` - The width of the stamp.
+    /// * `rotation` - The stamp rotation angle as enum `Rotation`: `None`, `On90`, `On180`, `On270`, or `On360`.
+    /// * `opacity` - The stamp opacity (decimal).
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the rotation operation fails.
+    pub fn add_stamp(
+        &self,
+        alternative_text: &str,
+        image_data: &[u8],
+        is_background: bool,
+        x_indent: i32,
+        y_indent: i32,
+        height: i32,
+        width: i32,
+        rotation: Rotation,
+        opacity: f64,
+    ) -> Result<(), PdfError> {
+        debug_println!("call Document::add_stamp({alternative_text:?})");
+        let c_string_alternative_text = std::ffi::CString::new(alternative_text).unwrap();
+        let c_char_ptr_alternative_text = c_string_alternative_text.as_ptr();
+        let image_data_ptr = image_data.as_ptr();
+        let image_data_len = image_data.len() as i32;
+        let _is_background: i32 = if is_background { 1 } else { 0 };
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        unsafe {
+            PDFDocument_AddStamp(
+                self.pdfdocumentclass,
+                c_char_ptr_alternative_text as *const c_char,
+                image_data_ptr,
+                image_data_len,
+                _is_background,
+                x_indent,
+                y_indent,
+                height,
+                width,
+                rotation as i32,
+                opacity,
+                error.as_mut_ptr(),
+            )
+        };
+        let error_str = Self::get_error(&mut error);
+        if error_str.is_empty() {
+            Ok(())
+        } else {
+            debug_println!("error Document::add_stamp({alternative_text:?}): {error_str:?}");
+            Err(PdfError::CoreExceptionError(error_str))
+        }
+    }
+
+    /// Add stamp on page.
+    ///
+    /// # Arguments
+    /// * `num` - The page number (1-based).
+    /// * `alternative_text` - The alternative stamp text.
+    /// * `image_data` - The raw bytes of the image.
+    /// * `is_background` - The stamp is background.
+    /// * `x_indent` - The x indent of the stamp.
+    /// * `y_indent` - The y indent of the stamp.
+    /// * `height` - The height of the stamp.
+    /// * `width` - The width of the stamp.
+    /// * `rotation` - The stamp rotation angle as enum `Rotation`: `None`, `On90`, `On180`, `On270`, or `On360`.
+    /// * `opacity` - The stamp opacity (decimal).
+    ///
+    /// # Errors
+    /// Returns `PdfError` if the rotation operation fails.
+    pub fn page_add_stamp(
+        &self,
+        num: i32,
+        alternative_text: &str,
+        image_data: &[u8],
+        is_background: bool,
+        x_indent: i32,
+        y_indent: i32,
+        height: i32,
+        width: i32,
+        rotation: Rotation,
+        opacity: f64,
+    ) -> Result<(), PdfError> {
+        debug_println!("call Document::page_add_stamp({alternative_text:?})");
+        let c_string_alternative_text = std::ffi::CString::new(alternative_text).unwrap();
+        let c_char_ptr_alternative_text = c_string_alternative_text.as_ptr();
+        let image_data_ptr = image_data.as_ptr();
+        let image_data_len = image_data.len() as i32;
+        let _is_background: i32 = if is_background { 1 } else { 0 };
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        unsafe {
+            PDFDocument_Page_AddStamp(
+                self.pdfdocumentclass,
+                num,
+                c_char_ptr_alternative_text as *const c_char,
+                image_data_ptr,
+                image_data_len,
+                _is_background,
+                x_indent,
+                y_indent,
+                height,
+                width,
+                rotation as i32,
+                opacity,
+                error.as_mut_ptr(),
+            )
+        };
+        let error_str = Self::get_error(&mut error);
+        if error_str.is_empty() {
+            Ok(())
+        } else {
+            debug_println!("error Document::page_add_stamp({alternative_text:?}): {error_str:?}");
+            Err(PdfError::CoreExceptionError(error_str))
+        }
+    }
+
     // Generated functions
     generate_fn!(_save, PDFDocument_Save);
     generate_fn!(_save_as, PDFDocument_Save_As, filename: &str);

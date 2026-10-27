@@ -272,6 +272,20 @@ extern "C" {
         searchPattern: *const c_char,
         error: *mut *const c_char,
     );
+    pub fn PDFDocument_AddStamp(
+        pdfdocumentclass: *const c_void,
+        alternativeText: *const c_char,
+        imageData: *const u8,
+        imageLen: c_int,
+        isBackground: c_int,
+        xIndent: c_int,
+        yIndent: c_int,
+        height: c_int,
+        width: c_int,
+        rotation: c_int,
+        opacity: c_double,
+        error: *mut *const c_char,
+    );
     pub fn PDFDocument_Page_get_Count(
         pdfdocumentclass: *const c_void,
         error: *mut *const c_char,
@@ -557,6 +571,21 @@ extern "C" {
         num: c_int,
         error: *mut *const c_char,
     ) -> *const c_char;
+    pub fn PDFDocument_Page_AddStamp(
+        pdfdocumentclass: *const c_void,
+        num: c_int,
+        alternativeText: *const c_char,
+        imageData: *const u8,
+        imageLen: c_int,
+        isBackground: c_int,
+        xIndent: c_int,
+        yIndent: c_int,
+        height: c_int,
+        width: c_int,
+        rotation: c_int,
+        opacity: c_double,
+        error: *mut *const c_char,
+    );
 }
 
 extern "C" {
