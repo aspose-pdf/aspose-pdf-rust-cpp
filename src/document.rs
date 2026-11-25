@@ -3,14 +3,14 @@ use serde::Deserialize;
 use serde_json;
 use std::ffi::{c_char, c_int, c_uchar, c_void, CStr, CString};
 
+use crate::debug_println;
 use crate::enums::{ConvertErrorAction, CryptoAlgorithm, PageSize, PdfFormat, Rotation};
 use crate::errors::PdfError;
 use crate::extern_c::*;
+use crate::generate_fn;
+use crate::pdf_sign_status::PdfSignStatus;
 use crate::permissions::Permissions;
 use crate::product_info::ProductInfo;
-
-use crate::debug_println;
-use crate::generate_fn;
 
 #[derive(Debug)]
 pub struct Document {
@@ -1977,6 +1977,40 @@ impl Document {
     /// Returns `PdfError` if the operation fails.
     pub fn remove_signs(&self, filename: &str) -> Result<(), PdfError> {
         self._remove_signs(filename)
+    }
+
+    /// Verifies signs from PDF-document.
+    ///
+    /// The signature statuses are returned as a `Vec` of `PdfSignStatus` structs, deserialized from a JSON string.
+    /// Each struct includes the signature's name and status.
+    ///
+    /// See also: `pdf_sign_status.rs` and `enums.rs`
+    ///
+    /// # Returns
+    /// Returns `Ok(Vec<PdfSignStatus>)` on success, or `Err(PdfError)` if the operation fails.
+    pub fn verify_signs(&self) -> Result<Vec<PdfSignStatus>, PdfError> {
+        debug_println!("call Document::verify_signs()");
+        let mut error: std::mem::MaybeUninit<*const c_char> = std::mem::MaybeUninit::uninit();
+        let ret_val: *const c_char =
+            unsafe { PDFDocument_VerifySigns(self.pdfdocumentclass, error.as_mut_ptr()) };
+        let error_str = Self::get_error(&mut error);
+        if !error_str.is_empty() {
+            debug_println!("error Document::verify_signs(): {error_str:?}");
+            return Err(PdfError::CoreExceptionError(error_str));
+        }
+        if ret_val.is_null() {
+            return Err(PdfError::CoreExceptionError(
+                "verify_signs: unexpected null result".to_string(),
+            ));
+        }
+        let json_str = unsafe { CStr::from_ptr(ret_val) }
+            .to_str()
+            .map(|s| s.to_owned())
+            .unwrap();
+        unsafe { c_free_string(ret_val as *mut c_char) };
+        serde_json::from_str::<Vec<PdfSignStatus>>(&json_str).map_err(|e| {
+            PdfError::CoreExceptionError(format!("verify_signs: failed to parse JSON: {e}"))
+        })
     }
 
     /// Get PDF/A compliant status of PDF-document.

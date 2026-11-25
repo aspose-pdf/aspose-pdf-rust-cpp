@@ -128,6 +128,10 @@ extern "C" {
         filename: *const c_char,
         error: *mut *const c_char,
     );
+    pub fn PDFDocument_VerifySigns(
+        pdfdocumentclass: *const c_void,
+        error: *mut *const c_char,
+    ) -> *const c_char;
     pub fn PDFDocument_is_PdfaCompliant(
         pdfdocumentclass: *const c_void,
         error: *mut *const c_char,

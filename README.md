@@ -126,6 +126,8 @@ Contains unique features for converting PDF to other formats.
     Remove signs from PDF-document.
   - `is_signed`
     Get signed status of PDF-document.
+  - `verify_signs`
+    Verify signs from PDF-document.
 
 ## Platforms
 

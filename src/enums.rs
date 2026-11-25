@@ -128,3 +128,27 @@ pub enum ConvertErrorAction {
     /// Do nothing, keep non-conforming elements.
     None = 1,
 }
+
+/// Enumeration of possible status of signature.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Deserialize)]
+pub enum SignStatus {
+    /// Status is VALID.
+    #[serde(rename = "VALID")]
+    Valid,
+    /// Status is INVALID.
+    #[serde(rename = "INVALID")]
+    Invalid,
+    /// Status is INACTIVE.
+    #[serde(rename = "INACTIVE")]
+    Inactive,
+}
+
+impl std::fmt::Display for SignStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            SignStatus::Valid => "VALID",
+            SignStatus::Invalid => "INVALID",
+            SignStatus::Inactive => "INACTIVE",
+        })
+    }
+}

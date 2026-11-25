@@ -3,13 +3,15 @@ mod document_gen_fn;
 mod enums;
 mod errors;
 mod extern_c;
+mod pdf_sign_status;
 mod permissions;
 mod product_info;
 mod utils;
 
 pub use document::Document;
-pub use enums::{ConvertErrorAction, CryptoAlgorithm, PageSize, PdfFormat, Rotation};
+pub use enums::{ConvertErrorAction, CryptoAlgorithm, PageSize, PdfFormat, Rotation, SignStatus};
 pub use errors::PdfError;
+pub use pdf_sign_status::PdfSignStatus;
 pub use permissions::Permissions;
 pub use product_info::ProductInfo;
 
@@ -1077,6 +1079,17 @@ mod test {
             let pdf_sign = Document::open(output_str)?;
             assert!(pdf_sign.is_signed()?, "PDF should be signed (standard)");
 
+            let signs = pdf_sign.verify_signs()?;
+            assert!(!signs.is_empty(), "No signatures found");
+            for s in signs {
+                assert_eq!(
+                    s.status,
+                    SignStatus::Valid,
+                    "Signature {} is not valid",
+                    s.name
+                );
+            }
+
             let output_path_unsign = tmp_dir.join("pkcs7_standard_without_sign.pdf");
             let output_unsign_str = output_path_unsign.to_str().unwrap();
 
@@ -1116,6 +1129,17 @@ mod test {
             let pdf_sign = Document::open(output_str)?;
             assert!(pdf_sign.is_signed()?, "PDF should be signed (detached)");
 
+            let signs = pdf_sign.verify_signs()?;
+            assert!(!signs.is_empty(), "No signatures found");
+            for s in signs {
+                assert_eq!(
+                    s.status,
+                    SignStatus::Valid,
+                    "Signature {} is not valid",
+                    s.name
+                );
+            }
+
             let output_path_unsign = tmp_dir.join("pkcs7_detached_without_sign.pdf");
             let output_unsign_str = output_path_unsign.to_str().unwrap();
 
@@ -1133,8 +1157,6 @@ mod test {
 
     #[test]
     fn pdf_reverse_pages() -> Result<(), Box<dyn std::error::Error>> {
-        use super::*;
-
         // Create a new PDF document
         let pdf = Document::new()?;
 
@@ -1163,8 +1185,6 @@ mod test {
 
     #[test]
     fn pdf_reorder_pages() -> Result<(), Box<dyn std::error::Error>> {
-        use super::*;
-
         // Create a new PDF document
         let pdf = Document::new()?;
 
